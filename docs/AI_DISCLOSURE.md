@@ -46,10 +46,26 @@ In accordance with academic and project submission guidelines, this project util
 
 ## 3. Human Verification Checklist
 
-- [x] All 26 automated test cases pass (`pytest tests/ -v`).
+- [x] All 30 automated test cases pass (`pytest tests/ -v`) in the final reviewed repository snapshot.
 - [x] All 20 validation checks pass in both baseline and evaluation modes (`ValidationEngine`).
-- [x] Two-run reproducibility verification verified at both Starter and Full scales (`seed=20261022`).
+- [x] Two-run reproducibility verification completed at both Starter and Full scales (`seed=20261022`).
 - [x] Mathematical reconciliation of all 201,086 lot allocation rows against source business movements verified.
 - [x] Ground-truth isolation confirmed via code audit of `AnomalyDetector`.
 - [x] SQLite WAL non-blocking reads and serialized write safety benchmarked under concurrent load.
-- [x] Submission metadata verified: Author Vishal Voweldas (vishalvoweldas67@gmail.com), Repository: https://github.com/vishalvoweldas/loyalty-ledger-intelligence-platform.git
+- [x] Personally performed a feature-by-feature, point-by-point manual walkthrough of the dashboard.
+- [x] Checked the available dashboard sections, features, controls, and interactions, and verified whether they behaved as expected.
+- [x] Reviewed the dashboard from a user's perspective in addition to running automated tests and backend validation.
+- [x] Used manual dashboard verification to complement automated testing, since UI behavior and user-facing issues may not be fully covered by unit and integration tests.
+- [x] Submission metadata verified: Author Vishal Voweldas, Repository: https://github.com/vishalvoweldas/loyalty-ledger-intelligence-platform.git
+
+---
+
+## 4. Dashboard Manual Verification
+
+In addition to automated testing and backend validation, I personally performed a feature-by-feature, point-by-point walkthrough of the dashboard.
+
+During this walkthrough, I checked the available dashboard sections, features, controls, and interactions and verified whether they behaved as expected. I reviewed the dashboard from the perspective of an end user to identify potential user-facing issues that might not be detected by automated unit or integration tests alone.
+
+This manual verification was performed alongside the automated test suite, data validation checks, and other project verification activities. These are complementary forms of evidence: automated tests verify programmed test scenarios, validation checks assess data integrity, and manual dashboard testing checks the behavior and usability of the user-facing interface.
+
+The verification statements above reflect the checks performed during development. Any known issues, limitations, or behaviors that could not be verified should be documented explicitly rather than described as passing.
