@@ -1,0 +1,64 @@
+{
+  "overall": {
+    "ground_truth_total": 16,
+    "detected_total": 16,
+    "true_positives": 16,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0
+  },
+  "by_class": {
+    "AN-001": {
+      "ground_truth_count": 2,
+      "detected_count": 2,
+      "true_positives": 2,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "AN-002": {
+      "ground_truth_count": 2,
+      "detected_count": 2,
+      "true_positives": 2,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "AN-003": {
+      "ground_truth_count": 2,
+      "detected_count": 2,
+      "true_positives": 2,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "AN-004": {
+      "ground_truth_count": 8,
+      "detected_count": 8,
+      "true_positives": 8,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "AN-005": {
+      "ground_truth_count": 2,
+      "detected_count": 2,
+      "true_positives": 2,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    }
+  }
+}

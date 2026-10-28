@@ -1,0 +1,2 @@
+*.db filter=lfs diff=lfs merge=lfs -text
+exports/json/points_transactions.json filter=lfs diff=lfs merge=lfs -text

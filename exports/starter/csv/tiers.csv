@@ -1,0 +1,4 @@
+tier_id,tier_name,min_qualifying_spend_minor,spend_per_point_minor,earning_rate_points,effective_from,effective_to,status
+TIER-BRONZE,Bronze,0,10000,1,2026-01-01T00:00:00,,ACTIVE
+TIER-SILVER,Silver,1000000,5000,2,2026-01-01T00:00:00,,ACTIVE
+TIER-GOLD,Gold,5000000,3333,3,2026-01-01T00:00:00,,ACTIVE

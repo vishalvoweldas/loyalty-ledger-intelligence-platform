@@ -1,0 +1,1 @@
+[{"expiry_batch_id": "EXP-2026-000001", "run_at": "2026-07-20T00:00:00", "cutoff_at": "2026-07-20T00:00:00", "status": "COMPLETED", "lots_scanned": 2021, "points_expired": 4042, "idempotency_key": "IDEMP-EXP-2026-000001"}]

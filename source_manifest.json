@@ -1,0 +1,9 @@
+{
+  "provenance": "100% Synthetic Data Factory",
+  "external_personal_data_used": false,
+  "legal_terms": "Synthetic benchmark data for testing, evaluation and demonstration",
+  "fixed_seed": 20261022,
+  "default_timezone": "UTC",
+  "currency": "INR (Paise)",
+  "generator_version": "1.0.0"
+}

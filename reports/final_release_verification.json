@@ -1,0 +1,290 @@
+{
+  "verification_metadata": {
+    "verification_timestamp": "2026-10-27T17:45:00+05:30",
+    "platform_version": "1.0.0",
+    "seed": 20261022,
+    "scale": "full",
+    "release_status": "RELEASE_READY",
+    "database": {
+      "runtime_engine": "SQLite 3 (WAL mode, foreign_keys=ON, BEGIN IMMEDIATE isolation)",
+      "file_path": "data/loyalty_ledger.db",
+      "supported_deployment_targets": [
+        "SQLite (Local/Edge runtime)",
+        "PostgreSQL 15+ (Production containerized runtime via docker-compose)"
+      ]
+    }
+  },
+  "entity_row_counts": {
+    "customers": 20000,
+    "loyalty_accounts": 20000,
+    "tiers": 3,
+    "rules": 5,
+    "orders": 100000,
+    "order_lines": 199822,
+    "points_transactions": 300000,
+    "rewards": 4,
+    "redemptions": 98996,
+    "expiry_batches": 1,
+    "point_lots": 100000,
+    "transaction_lot_allocations": 201086,
+    "account_tier_history": 20000,
+    "order_returns": 20002,
+    "ground_truth_records": 16,
+    "audit_events": 0
+  },
+  "reconciled_discrepancies": {
+    "transaction_lot_allocations_count": {
+      "canonical_count": 201086,
+      "stale_report_count": 199998,
+      "explanation": "The 199,998 figure originated from an early generator iteration that assumed 1-to-1 redemption-to-lot allocation (98,994 redemptions + 20,000 reversals + 80,996 expiries + 8 anomaly duplicates = 199,998), which caused lot balance overdraws. The corrected FIFO accounting engine strictly respects lot remaining balances; 1,088 redemptions split across two open lots, resulting in 100,082 redemption allocations, 81,004 expiry allocations, and 20,000 reversal allocations = 201,086 rows. This matches data/loyalty_ledger.db, dataset_manifest.json, and all CSV/JSON export files."
+    },
+    "redemption_allocation_arithmetic_reconciliation": {
+      "total_redemption_records": 98996,
+      "total_redemption_points_transactions": 98996,
+      "redemptions_with_0_allocations": {
+        "count": 2,
+        "record_ids": ["RDM-AN002-0001", "RDM-AN002-0002"],
+        "transaction_ids": ["PTS-2026-00299991", "PTS-2026-00299992"],
+        "points_delta": -99999,
+        "explanation": "These are the two intentionally injected AN-002 over-redemption anomaly cases. Because the account possessed zero points, the redemptions were erroneously approved without lot backing and therefore generated zero lot allocation records."
+      },
+      "redemptions_with_1_allocation": 97906,
+      "redemptions_with_2_allocations": 1088,
+      "redemptions_with_gt_2_allocations": 0,
+      "redemption_sum_check": "97906 + 1088 + 2 = 98996 total redemptions",
+      "redemption_allocations_calculation": "(97906 * 1) + (1088 * 2) + (2 * 0) = 97906 + 2176 + 0 = 100082 redemption allocations",
+      "actual_redemption_allocations_measured": 100082,
+      "apparent_two_row_discrepancy_explanation": "An auditor calculating 98,996 + 1,088 = 100,084 assumes all 98,996 redemptions have at least one allocation. In reality, exactly 98,994 baseline redemptions have allocations (98,994 + 1,088 = 100,082), while the 2 AN-002 anomaly redemptions intentionally have 0 allocations."
+    },
+    "allocation_categories_full_reconciliation": {
+      "REDEMPTION": {
+        "measured_count": 100082,
+        "formula": "97906 (single-lot) + 2176 (two-lot) = 100082"
+      },
+      "EXPIRY": {
+        "measured_count": 81004,
+        "formula": "80988 (single-expiry lots) + 16 (8 lots with 2 AN-004 duplicate expiries) = 81004"
+      },
+      "REVERSAL": {
+        "measured_count": 20000,
+        "formula": "20000 baseline returns with linked reversals = 20000 (2 AN-003 returns have NULL reversals)"
+      },
+      "total_allocations": 201086,
+      "database_count": 201086,
+      "csv_export_count": 201086,
+      "json_export_count": 201086
+    },
+    "an_001_canonical_definition": {
+      "definition": "Stored account balance differs from ledger sum (account.cached_balance_points != sum(tx.points_delta))",
+      "alignment": "Consistent across PRD.md, business_rules.md, data_dictionary.md, anomaly_injector.py, detector.py, ground_truth.json, and evaluation_metrics.json."
+    }
+  },
+  "full_scale_reproducibility": {
+    "verified_at": "2026-10-27T12:11:29.943694+00:00",
+    "seed": 20261022,
+    "scale": "full",
+    "reproducible": true,
+    "row_counts_identical": true,
+    "checksums_identical": true,
+    "checksum_differences_count": 0,
+    "canonical_checksums": {
+      "customers_canonical_sha256": "e10d5088a6939852701b86dd7a430fb4ad5e50a8bc2fcdcdeba6bc507f646432",
+      "loyalty_accounts_canonical_sha256": "972edd62e87c94babf296669d051575feb3f92bd824a6566f9354521f990c801",
+      "tiers_canonical_sha256": "d01f7731e0c62840ca112a1ded818ccfc03792a07be5a54454ae923bb7f15592",
+      "rules_canonical_sha256": "9e8b90937443dea4e068bc29df16ec31760c2add32baae87472bfc53faaa05d3",
+      "orders_canonical_sha256": "87007c23f7949f2fef60031d0d5891ee6f9f277d8c2f6e6159757516aab70927",
+      "order_lines_canonical_sha256": "4afbd233f283b7c9809a77efc49472dffced8a1972d16d0f19611d095b777b12",
+      "points_transactions_canonical_sha256": "bd16f575be8b5031d955662381d72aee94e9de7619f6986c10d91156e6221192",
+      "rewards_canonical_sha256": "1550df9815b533b02056f64eae96aa4c1dfd47b7488627390b2d2d10e67740b0",
+      "redemptions_canonical_sha256": "f97772e5e8685818af2a4a1d516be6c6ff0297c2e3850e5d09b90694e9bf96dd",
+      "expiry_batches_canonical_sha256": "62c0cdc6376fae247a9eea8068e34db6d2a9693e776b9da864a9770f563c5bfc",
+      "point_lots_canonical_sha256": "5cb189f67e806029c6efb29792045e57906640c71c75da2a8fd78cab3c22133a",
+      "transaction_lot_allocations_canonical_sha256": "5d7ca1295b04126a6b2b2c26ad95ea40e476e18fb350c9e1ee8649f5220a31f9",
+      "account_tier_history_canonical_sha256": "b8d31c8a0121c599440281c398a150b037470f9eb2bc4adacf635759a8925b34",
+      "order_returns_canonical_sha256": "6f875c65bccd29e8d1a5be73ffc18d4ff672fa1dabf8581458d4eded4b735424"
+    }
+  },
+  "anomaly_evaluation_metrics": {
+    "overall": {
+      "ground_truth_total": 16,
+      "detected_total": 16,
+      "true_positives": 16,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "by_class": {
+      "AN-001": {
+        "scenario": "Stored balance differs from ledger sum",
+        "ground_truth_count": 2,
+        "detected_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "affected_records": ["LOY-CUS-000010", "LOY-CUS-000020"]
+      },
+      "AN-002": {
+        "scenario": "Redemption exceeds available points",
+        "ground_truth_count": 2,
+        "detected_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "affected_records": ["RDM-AN002-0001", "RDM-AN002-0002"]
+      },
+      "AN-003": {
+        "scenario": "Returned order keeps all earned points (missing reversal)",
+        "ground_truth_count": 2,
+        "detected_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "affected_records": ["RET-AN003-0001", "RET-AN003-0002"]
+      },
+      "AN-004": {
+        "scenario": "Points expire twice (duplicate expiry movements)",
+        "ground_truth_count": 8,
+        "detected_count": 8,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "affected_records": [
+          "LOT-PTS-2026-00000001", "LOT-PTS-2026-00000002", "LOT-PTS-2026-00000003", "LOT-PTS-2026-00000004",
+          "LOT-PTS-2026-00000005", "LOT-PTS-2026-00000006", "LOT-PTS-2026-00000007", "LOT-PTS-2026-00000008"
+        ]
+      },
+      "AN-005": {
+        "scenario": "Tier uses gross rather than qualifying spend",
+        "ground_truth_count": 2,
+        "detected_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "affected_records": ["LOY-CUS-000052", "LOY-CUS-000056"]
+      }
+    }
+  },
+  "acceptance_criteria_verification": [
+    {
+      "criterion_id": "AC-01",
+      "description": "Full-scale synthetic dataset generation: exactly 20,000 customers, 100,000 orders, 300,000 points transactions",
+      "status": "PASS",
+      "evidence": "data/loyalty_ledger.db measured counts: customers=20000, orders=100000, points_transactions=300000; exports/csv matching exactly."
+    },
+    {
+      "criterion_id": "AC-02",
+      "description": "Core entity models with primary key uniqueness and foreign key integrity constraints",
+      "status": "PASS",
+      "evidence": "Validation Check 1 (0 duplicate PKs) and Check 2 (0 orphaned FK records) passed in validation_summary.json."
+    },
+    {
+      "criterion_id": "AC-03",
+      "description": "Signed append-only points ledger with balance reconciliation against cached account balances",
+      "status": "PASS",
+      "evidence": "Validation Check 11 passed; 19,998 / 20,000 accounts match ledger sum exactly; 2 divergences match AN-001 ground truth."
+    },
+    {
+      "criterion_id": "AC-04",
+      "description": "Point-lot accounting invariant: original_points == remaining_points + sum(allocations) with non-negative remaining quantities",
+      "status": "PASS",
+      "evidence": "Validation Check 12 passed; 99,992 lots mathematically reconciled; 8 discrepancies match AN-004 ground truth; 0 negative lots."
+    },
+    {
+      "criterion_id": "AC-05",
+      "description": "FIFO redemption consumption and prevention of overspending",
+      "status": "PASS",
+      "evidence": "RedemptionService orders lots by expires_at ASC, lot_id ASC; live concurrency test passed with 1 approved, 1 rejected, leaving exactly 20 pts."
+    },
+    {
+      "criterion_id": "AC-06",
+      "description": "Proportional return reversals linked to original accrual transactions; reversed <= accrued",
+      "status": "PASS",
+      "evidence": "Validation Check 8 & 10 passed; 20,000 baseline returns link to original transactions; 0 excessive reversals; 2 unreversed returns match AN-003."
+    },
+    {
+      "criterion_id": "AC-07",
+      "description": "Lot expiry idempotency and duplicate expiry detection",
+      "status": "PASS",
+      "evidence": "Validation Check 14 passed; 0 duplicate expiries in baseline; exactly 8 duplicate expiry allocations match AN-004 ground truth."
+    },
+    {
+      "criterion_id": "AC-08",
+      "description": "Tier qualification using net qualifying merchandise spend (Gross spend minus returns spend)",
+      "status": "PASS",
+      "evidence": "Validation Check 15 passed; RuleEngine threshold boundaries verified; exactly 2 tier overrides match AN-005 ground truth."
+    },
+    {
+      "criterion_id": "AC-09",
+      "description": "Mandatory anomaly scenarios AN-001 through AN-005 with isolated Ground Truth and independent detection",
+      "status": "PASS",
+      "evidence": "AnomalyEvaluator confirmed Precision=1.0, Recall=1.0, F1=1.0 across all 5 classes without detector access to Ground Truth table."
+    },
+    {
+      "criterion_id": "AC-10",
+      "description": "Fixed-seed deterministic two-run reproducibility across all entities",
+      "status": "PASS",
+      "evidence": "reproducibility_report.json confirmed 0 differences across row counts and canonical SHA-256 hashes for all 14 entities under seed 20261022."
+    },
+    {
+      "criterion_id": "AC-11",
+      "description": "Downloadable canonical exports: CSV, JSON, SQL seed scripts, manifests, and documentation",
+      "status": "PASS",
+      "evidence": "exports/csv (15 tables), exports/json (15 tables), exports/sql (schema.sql, seed.sql), data_dictionary.md, manifests verified on disk."
+    },
+    {
+      "criterion_id": "AC-12",
+      "description": "Interactive Web Operations Console and OpenAPI REST API endpoints",
+      "status": "PASS",
+      "evidence": "FastAPI server with lifespan event handler serves HTML5 dashboard at '/' and '/dashboard'; OpenAPI docs at '/docs'; all integration tests passed."
+    },
+    {
+      "criterion_id": "AC-13",
+      "description": "Automated unit, integration, lifecycle, anomaly, and concurrency test coverage",
+      "status": "PASS",
+      "evidence": "pytest tests/ -v executed with 26/26 passing tests in 134.17s."
+    },
+    {
+      "criterion_id": "AC-14",
+      "description": "Packaging, environment configuration, containerization, and clean startup instructions",
+      "status": "PASS",
+      "evidence": "pyproject.toml, Dockerfile, docker-compose.yml, .env.example, README.md verified and tested."
+    }
+  ],
+  "concurrency_verification": {
+    "status": "VERIFIED_NON_BLOCKING",
+    "repeated_rounds": 5,
+    "total_requests": 100,
+    "successful_http_200": 100,
+    "http_500_responses": 0,
+    "exceptions": 0,
+    "timeouts": 0,
+    "tested_endpoints": [
+      "/api/v1/customers",
+      "/api/v1/orders",
+      "/api/v1/accounts/LOY-CUS-000001/ledger",
+      "/api/v1/dashboard/summary",
+      "/api/v1/anomalies"
+    ],
+    "mixed_workload_verification": {
+      "concurrent_readers": 20,
+      "competing_writers": 10,
+      "overspending_prevented": true,
+      "approved_redemptions": 1,
+      "rejected_redemptions": 9,
+      "final_account_balance_exact": 40,
+      "final_lot_balance_exact": 40,
+      "read_errors": 0,
+      "write_lock_errors": 0
+    }
+  },
+  "automated_test_summary": {
+    "total_collected": 26,
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 1,
+    "execution_time_seconds": 134.17
+  }
+}

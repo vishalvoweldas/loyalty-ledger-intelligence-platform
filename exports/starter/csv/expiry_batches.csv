@@ -1,0 +1,2 @@
+expiry_batch_id,run_at,cutoff_at,status,lots_scanned,points_expired,idempotency_key
+EXP-2026-000001,2026-07-20T00:00:00,2026-07-20T00:00:00,COMPLETED,2021,4042,IDEMP-EXP-2026-000001

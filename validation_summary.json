@@ -1,0 +1,190 @@
+{
+  "validation_timestamp": "2026-10-28T11:41:10.140586+00:00",
+  "mode": "baseline",
+  "total_checks": 20,
+  "passed_checks": 20,
+  "failed_checks": 0,
+  "overall_status": "PASSED",
+  "findings": [
+    {
+      "check_number": 1,
+      "name": "PRIMARY_KEY_UNIQUENESS",
+      "entity": "Multiple",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Customer dups: 0, Order dups: 0, Transaction dups: 0"
+    },
+    {
+      "check_number": 2,
+      "name": "FOREIGN_KEY_INTEGRITY",
+      "entity": "Multiple",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Orphaned orders: 0, Orphaned tx: 0, Orphaned accounts: 0, Orphaned lots: 0"
+    },
+    {
+      "check_number": 3,
+      "name": "REQUIRED_FIELDS_AND_NULLABILITY",
+      "entity": "Multiple",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Null customer names: 0, Null order totals: 0, Null tx deltas: 0"
+    },
+    {
+      "check_number": 4,
+      "name": "ENUM_AND_ALLOWED_VALUES",
+      "entity": "Multiple",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Invalid regions: 0, Invalid tx types: 0, Invalid lot statuses: 0"
+    },
+    {
+      "check_number": 5,
+      "name": "DATE_ORDERING",
+      "entity": "PointLot",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Lots with expires_at <= accrued_at: 0"
+    },
+    {
+      "check_number": 6,
+      "name": "RULE_EFFECTIVE_DATE_CONSISTENCY",
+      "entity": "Rule",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Rules with valid effective dates: 5/5 verified"
+    },
+    {
+      "check_number": 7,
+      "name": "ORDER_ARITHMETIC",
+      "entity": "Order",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Orders with mismatched arithmetic: 0 (all 100,000 verified)"
+    },
+    {
+      "check_number": 8,
+      "name": "RETURN_QUANTITY_ARITHMETIC",
+      "entity": "OrderLine",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Lines with returned_quantity > quantity: 0 (all 199,822 verified)"
+    },
+    {
+      "check_number": 9,
+      "name": "POINTS_ACCRUAL_CALCULATIONS",
+      "entity": "PointsTransaction",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Points accrual floor calculations verified across all accrual transactions."
+    },
+    {
+      "check_number": 10,
+      "name": "REVERSAL_REFERENCES_AND_AMOUNTS",
+      "entity": "OrderReturn",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: 20,000 returns checked, 0 missing reversals. (2 intentional AN-003 returns isolated in ground truth)."
+    },
+    {
+      "check_number": 11,
+      "name": "BALANCE_RECONCILIATION",
+      "entity": "LoyaltyAccount",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: 19,998 accounts checked, 0 balance discrepancies. (2 intentional AN-001 anomalies isolated in ground truth)."
+    },
+    {
+      "check_number": 12,
+      "name": "POINT_LOT_ALLOCATIONS",
+      "entity": "PointLot",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: 99,992 point lots checked, 0 allocation math discrepancies. (8 intentional AN-004 lots isolated in ground truth)."
+    },
+    {
+      "check_number": 13,
+      "name": "REDEMPTION_AVAILABILITY_AND_SAFETY",
+      "entity": "Redemption",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: 98,994 redemptions checked, 0 overdrawn attempts. (2 intentional AN-002 redemptions isolated in ground truth)."
+    },
+    {
+      "check_number": 14,
+      "name": "EXPIRY_IDEMPOTENCY",
+      "entity": "TransactionLotAllocation",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: 99,992 point lots checked, 0 duplicate expiry allocations. (8 intentional AN-004 lots isolated in ground truth)."
+    },
+    {
+      "check_number": 15,
+      "name": "TIER_QUALIFICATION_RULES",
+      "entity": "LoyaltyAccount",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Baseline verified: Tier qualifying spend rules verified across all baseline accounts. (2 intentional AN-005 accounts isolated in ground truth)."
+    },
+    {
+      "check_number": 16,
+      "name": "LIFECYCLE_TRANSITION_LEGALITY",
+      "entity": "Order",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Orders with invalid status: 0 (all 100,000 orders valid)"
+    },
+    {
+      "check_number": 17,
+      "name": "IDEMPOTENCY_KEY_UNIQUENESS",
+      "entity": "PointsTransaction",
+      "status": "PASS",
+      "passed": true,
+      "severity": "NONE",
+      "explanation": "Duplicate idempotency keys: 0 (all 300,000 keys unique)"
+    },
+    {
+      "check_number": 18,
+      "name": "GROUND_TRUTH_INTEGRITY",
+      "entity": "GroundTruthRecord",
+      "status": "PASS",
+      "passed": true,
+      "severity": "INFO",
+      "explanation": "Total labelled anomalies in ground truth: 16 (all 5 classes AN-001 through AN-005 verified)"
+    },
+    {
+      "check_number": 19,
+      "name": "ENTITY_ROW_COUNTS",
+      "entity": "Multiple",
+      "status": "PASS",
+      "passed": true,
+      "severity": "INFO",
+      "explanation": "Customers: 20000, Orders: 100000, Transactions: 300000, Lots: 100000, Allocations: 201086"
+    },
+    {
+      "check_number": 20,
+      "name": "REPRODUCIBILITY_VERIFICATION",
+      "entity": "System",
+      "status": "PASS",
+      "passed": true,
+      "severity": "INFO",
+      "explanation": "Deterministic seed 20261022 configured; two-run canonical SHA-256 verification verified."
+    }
+  ]
+}

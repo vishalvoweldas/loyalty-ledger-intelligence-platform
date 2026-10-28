@@ -1,0 +1,5 @@
+reward_id,reward_name,points_cost,status,effective_from,effective_to,inventory_quantity
+REW-VOUCHER-100,₹100 Shopping Voucher,50,ACTIVE,2026-01-01T00:00:00,,
+REW-VOUCHER-250,₹250 Shopping Voucher,125,ACTIVE,2026-01-01T00:00:00,,
+REW-VOUCHER-500,₹500 Shopping Voucher,250,ACTIVE,2026-01-01T00:00:00,,
+REW-VOUCHER-1000,"₹1,000 Shopping Voucher",500,ACTIVE,2026-01-01T00:00:00,,

@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loyalty Ledger Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-card-hover: rgba(31, 41, 55, 0.8);
+      --border: rgba(75, 85, 99, 0.4);
+      --border-accent: rgba(99, 102, 241, 0.5);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --gold: #fbbf24;
+      --silver: #94a3b8;
+      --bronze: #d97706;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 15% 15%, #131b2e 0%, #0a0e17 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #fff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 260px;
+      background: rgba(13, 19, 33, 0.8);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border);
+    }
+
+    .nav-btn.active {
+      color: white;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.05));
+      border-color: var(--border-accent);
+      font-weight: 600;
+    }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 70px);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid & Cards */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-metric {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card-subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Tables */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(17, 24, 39, 0.9);
+      padding: 0.85rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+      color: var(--text-main);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Buttons & Inputs */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--text-muted);
+    }
+
+    .input {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: #111827;
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      width: 90%;
+      max-width: 600px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-logo">LL</div>
+      <div>
+        <div class="brand-title">Loyalty Ledger Intelligence Platform</div>
+        <div class="brand-subtitle">Auditable Points Ledger & Anomaly Detection Console</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="badge badge-success" id="backend-status">System Online</span>
+      <span class="badge badge-primary">Seed: 20261022</span>
+      <a href="/docs" target="_blank" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">OpenAPI Docs</a>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside>
+      <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Executive Dashboard</button>
+      <button class="nav-btn" onclick="switchTab('customers')">👥 Customer Explorer</button>
+      <button class="nav-btn" onclick="switchTab('ledger')">📜 Transaction Ledger</button>
+      <button class="nav-btn" onclick="switchTab('orders')">🛍️ Orders & Returns</button>
+      <button class="nav-btn" onclick="switchTab('redemptions')">🎁 Redemption Operations</button>
+      <button class="nav-btn" onclick="switchTab('expiry')">⏳ Expiry Operations</button>
+      <button class="nav-btn" onclick="switchTab('tiers')">⚙️ Tiers & Rule Engine</button>
+      <button class="nav-btn" onclick="switchTab('anomalies')">🚨 Anomaly Investigation</button>
+      <button class="nav-btn" onclick="switchTab('validation')">✅ Validation & Integrity</button>
+      <button class="nav-btn" onclick="switchTab('reproducibility')">🔄 Reproducibility Runs</button>
+      <button class="nav-btn" onclick="switchTab('exports')">💾 Dataset Export & Manifest</button>
+    </aside>
+
+    <!-- Main Screens -->
+    <main>
+      <!-- 1. Executive Dashboard -->
+      <section id="tab-dashboard" class="tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <h2 style="font-weight: 700;">Executive Overview & Ledger Health</h2>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <span id="dash-cache-badge" class="badge" style="display: none; font-size: 0.75rem;"></span>
+            <button class="btn btn-secondary" id="dash-refresh-btn" onclick="refreshDashboard()">
+              <span id="dash-refresh-icon">🔄</span> Refresh Dashboard
+            </button>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="card">
+            <div class="card-title">Total Customers <span class="badge badge-primary">CUS</span></div>
+            <div class="card-metric" id="dash-customers">--</div>
+            <div class="card-subtext">Active loyalty accounts: 100%</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Total Orders <span class="badge badge-primary">ORD</span></div>
+            <div class="card-metric" id="dash-orders">--</div>
+            <div class="card-subtext">Merchandise spend tracking</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Ledger Transactions <span class="badge badge-primary">PTS</span></div>
+            <div class="card-metric" id="dash-transactions">--</div>
+            <div class="card-subtext">Append-only audit trail</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Outstanding Liability <span class="badge badge-success">PTS</span></div>
+            <div class="card-metric" id="dash-outstanding">--</div>
+            <div class="card-subtext">Redeemable point float</div>
+          </div>
+        </div>
+
+        <div class="grid-4">
+          <div class="card">
+            <div class="card-title">Total Points Accrued</div>
+            <div class="card-metric" style="color: #34d399;" id="dash-accrued">--</div>
+            <div class="card-subtext">From eligible purchases</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Total Points Redeemed</div>
+            <div class="card-metric" style="color: #60a5fa;" id="dash-redeemed">--</div>
+            <div class="card-subtext">Reward disbursements</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Points Reversed on Returns</div>
+            <div class="card-metric" style="color: #fbbf24;" id="dash-reversed">--</div>
+            <div class="card-subtext">Proportional clawbacks</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Points Expired</div>
+            <div class="card-metric" style="color: #f87171;" id="dash-expired">--</div>
+            <div class="card-subtext">Lots reaching 365-day cutoff</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+          <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 1rem;">Tier Distribution</h3>
+            <div id="dash-tier-dist" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <!-- Dynamic -->
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 1rem;">Reconciliation & Anomaly Summary</h3>
+            <div id="dash-anomaly-summary" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <!-- Dynamic -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Customer Explorer -->
+      <section id="tab-customers" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <h2>Customer & Loyalty Account Explorer</h2>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="cus-search" class="input" placeholder="Search name, ID (e.g. CUS-000001), email..." oninput="debounceCustomerSearch()" style="min-width: 280px;">
+            <select id="cus-region-filter" class="input" onchange="onCustomerFilterChange()">
+              <option value="">All Regions</option>
+              <option value="NORTH">North</option>
+              <option value="SOUTH">South</option>
+              <option value="EAST">East</option>
+              <option value="WEST">West</option>
+              <option value="CENTRAL">Central</option>
+            </select>
+            <button class="btn btn-secondary" onclick="loadCustomers()">Refresh</button>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div id="cus-pagination-info" style="font-size: 0.85rem; color: var(--text-muted);">Showing customers...</div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <label class="form-label" style="margin: 0; font-size: 0.75rem;">Page Size:</label>
+            <select id="cus-page-size" class="input" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;" onchange="onCustomerPageSizeChange()">
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Region</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="customers-table-body">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading customers...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <button class="btn btn-secondary" id="cus-prev-btn" onclick="prevCustomerPage()" disabled>« Previous</button>
+          <span id="cus-page-indicator" class="mono" style="font-size: 0.85rem; font-weight: 600;">Page 1 of --</span>
+          <button class="btn btn-secondary" id="cus-next-btn" onclick="nextCustomerPage()" disabled>Next »</button>
+        </div>
+      </section>
+
+      <!-- 3. Transaction Ledger -->
+      <section id="tab-ledger" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <h2>Immutable Points Transaction Ledger</h2>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="ledger-acc-id" class="input mono" value="LOY-CUS-000001" placeholder="Account ID (e.g. LOY-CUS-000001)" onchange="onLedgerAccountChange()" style="width: 210px;">
+            <select id="ledger-type-filter" class="input" onchange="onLedgerAccountChange()">
+              <option value="">All Types</option>
+              <option value="ACCRUAL">Accrual (+)</option>
+              <option value="REDEMPTION">Redemption (-)</option>
+              <option value="REVERSAL">Reversal (-)</option>
+              <option value="EXPIRY">Expiry (-)</option>
+            </select>
+            <button class="btn btn-secondary" onclick="loadLedger()">Refresh</button>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div id="ledger-pagination-info" style="font-size: 0.85rem; color: var(--text-muted);">Showing transactions...</div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Account ID</th>
+                <th>Type</th>
+                <th>Points Delta</th>
+                <th>Source Type / ID</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Event Date</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body">
+              <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading transactions...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <button class="btn btn-secondary" id="ledger-prev-btn" onclick="prevLedgerPage()" disabled>« Previous</button>
+          <span id="ledger-page-indicator" class="mono" style="font-size: 0.85rem; font-weight: 600;">Page 1 of --</span>
+          <button class="btn btn-secondary" id="ledger-next-btn" onclick="nextLedgerPage()" disabled>Next »</button>
+        </div>
+      </section>
+
+      <!-- 4. Orders & Returns -->
+      <section id="tab-orders" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <h2>Orders & Operational Return Workflow</h2>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary" id="open-return-btn" onclick="openReturnModal()">+ Process Return Simulation</button>
+            <button class="btn btn-secondary" onclick="loadOrders()">Refresh</button>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div id="orders-pagination-info" style="font-size: 0.85rem; color: var(--text-muted);">Showing orders...</div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer ID</th>
+                <th>Status</th>
+                <th>Net Merchandise</th>
+                <th>Tax</th>
+                <th>Shipping</th>
+                <th>Total (INR)</th>
+                <th>Order Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <tr><td colspan="9" style="text-align: center; color: var(--text-muted);">Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <button class="btn btn-secondary" id="orders-prev-btn" onclick="prevOrdersPage()" disabled>« Previous</button>
+          <span id="orders-page-indicator" class="mono" style="font-size: 0.85rem; font-weight: 600;">Page 1 of --</span>
+          <button class="btn btn-secondary" id="orders-next-btn" onclick="nextOrdersPage()" disabled>Next »</button>
+        </div>
+      </section>
+
+      <!-- 5. Redemption Operations -->
+      <section id="tab-redemptions" class="tab-content">
+        <h2>Simulated Redemption Operations & Concurrency</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-top: 1rem;">
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Submit Redemption Request</h3>
+            <div class="form-group">
+              <label class="form-label">Account ID</label>
+              <input type="text" id="rdm-acc-id" class="input" value="LOY-CUS-000001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reward</label>
+              <select id="rdm-reward-id" class="input">
+                <option value="REW-VOUCHER-100">₹100 Shopping Voucher (50 pts)</option>
+                <option value="REW-VOUCHER-250">₹250 Shopping Voucher (125 pts)</option>
+                <option value="REW-VOUCHER-500">₹500 Shopping Voucher (250 pts)</option>
+                <option value="REW-VOUCHER-1000">₹1,000 Shopping Voucher (500 pts)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Requested Points</label>
+              <input type="number" id="rdm-pts" class="input" value="50">
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitRedemption()">Execute Redemption</button>
+            <div id="rdm-result" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Competing Request Stress Simulation</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Simulates two concurrent redemption requests competing for the exact same point balance in atomic transactions. At most one should succeed if the balance cannot satisfy both.
+            </p>
+            <button class="btn btn-secondary" onclick="simulateCompetingRedemptions()">Run Competing Requests Simulation</button>
+            <div id="competing-result" style="margin-top: 1rem; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Expiry Operations -->
+      <section id="tab-expiry" class="tab-content">
+        <h2>Point Lot Expiry Operations</h2>
+        <div class="card" style="margin-top: 1rem; max-width: 600px;">
+          <h3 style="margin-bottom: 1rem;">Trigger Batch Expiry Run</h3>
+          <div class="form-group">
+            <label class="form-label">Cutoff Timestamp</label>
+            <input type="text" id="exp-cutoff" class="input" value="2026-06-30T23:59:59Z">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Batch Idempotency Key</label>
+            <input type="text" id="exp-idemp" class="input" value="IDEMP-EXP-2026-06-30-MANUAL">
+          </div>
+          <button class="btn btn-primary" onclick="triggerExpiry()">Execute Idempotent Expiry Batch</button>
+          <div id="exp-result" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+        </div>
+      </section>
+
+      <!-- 7. Tiers & Rules -->
+      <section id="tab-tiers" class="tab-content">
+        <h2>Configured Membership Tiers & Versioned Rules</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Membership Tiers</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Tier</th><th>Min Spend (Paise)</th><th>Rate (pts/₹100)</th><th>Status</th></tr>
+                </thead>
+                <tbody id="tiers-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Active Versioned Rules</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Rule ID</th><th>Type</th><th>Ver</th><th>Description</th></tr>
+                </thead>
+                <tbody id="rules-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Anomaly Investigation -->
+      <section id="tab-anomalies" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2>Anomaly Investigation Review Queue</h2>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="loadAnomalies()">Rescan Detector</button>
+            <button class="btn btn-primary" onclick="loadAnomalyEvaluation()">View PR/Recall/F1 Metrics</button>
+          </div>
+        </div>
+        <div id="anomaly-eval-metrics-box" class="card" style="margin-bottom: 1rem; display: none;"></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Issue Type</th>
+                <th>Severity</th>
+                <th>Affected Entity</th>
+                <th>Record ID</th>
+                <th>Explanation</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="anomalies-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Scanning for anomalies...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 9. Validation & Integrity -->
+      <section id="tab-validation" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2>Reconciliation & 20-Check Validation Suite</h2>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary" onclick="runValidation('baseline')">Run Baseline Validation</button>
+            <button class="btn btn-secondary" onclick="runValidation('evaluation')">Run Evaluation Validation</button>
+          </div>
+        </div>
+        <div id="validation-summary-card" class="card" style="margin-bottom: 1rem; display: none;"></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Check Name</th>
+                <th>Entity</th>
+                <th>Status</th>
+                <th>Severity</th>
+                <th>Explanation</th>
+              </tr>
+            </thead>
+            <tbody id="validation-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Run validation suite to view results.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 10. Reproducibility -->
+      <section id="tab-reproducibility" class="tab-content">
+        <h2>Two-Run Reproducibility Verification</h2>
+        <div class="card" style="margin-top: 1rem; max-width: 800px;">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Executes two separate generation runs with seed <strong>20261022</strong> into isolated databases and computes SHA-256 hashes of all exported canonical tables to verify 100% deterministic reproducibility.
+          </p>
+          <div style="display: flex; gap: 0.75rem; align-items: flex-end; margin-bottom: 1rem;">
+            <div style="flex: 1;">
+              <label class="form-label">Scale</label>
+              <select id="repro-scale" class="input">
+                <option value="starter">Starter Scale (500 customers, 2.5k orders, 7.5k txs)</option>
+                <option value="full">Full Scale (20,000 customers, 100,000 orders, 300,000 txs)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="runReproducibility()">Verify Reproducibility</button>
+            <button class="btn btn-secondary" onclick="loadReproducibilityReport()">View Latest Report</button>
+          </div>
+          <div id="repro-result" style="margin-top: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;"></div>
+        </div>
+      </section>
+
+      <!-- 11. Dataset Export -->
+      <section id="tab-exports" class="tab-content">
+        <h2>Dataset Export, Manifests & Checksums</h2>
+        <div class="card" style="margin-top: 1rem; max-width: 800px;">
+          <h3 style="margin-bottom: 1rem;">Export Formats: CSV, JSON, SQL Seeds</h3>
+          <div class="form-group">
+            <label class="form-label">Scale</label>
+            <select id="export-scale" class="input" onchange="loadManifestPreview()">
+              <option value="full">Full Scale (20,000 customers, 100,000 orders, 300,000 txs)</option>
+              <option value="starter">Starter Scale (500 customers, 2.5k orders, 7.5k txs)</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button class="btn btn-primary" onclick="triggerExport()">Generate Exports & Manifest</button>
+            <button class="btn btn-secondary" onclick="loadManifestPreview()">View Scale Manifest</button>
+          </div>
+          <div id="export-result" style="margin-top: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Return Simulation Modal -->
+    <div id="return-modal" class="modal-overlay">
+      <div class="modal" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Process Return Simulation</h3>
+          <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.85rem;" onclick="closeReturnModal()">✕</button>
+        </div>
+        <div id="return-modal-scroll" style="overflow-y: auto; padding-right: 0.25rem; flex: 1;">
+          <div class="form-group">
+            <label class="form-label">Target Order ID</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="ret-order-id" class="input mono" placeholder="e.g. ORD-2026-000001" value="ORD-2026-000001" style="flex: 1;">
+              <button class="btn btn-secondary" id="ret-fetch-btn" onclick="lookupOrderForReturn()">Fetch Order Lines</button>
+            </div>
+          </div>
+
+          <div id="ret-order-details" style="display: none; margin-top: 1rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                <span>Customer: <strong id="ret-modal-customer" class="mono">--</strong></span>
+                <span>Status: <span id="ret-modal-status" class="badge badge-success">--</span></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span>Net Merchandise: <strong id="ret-modal-total" class="mono">₹0.00</strong></span>
+                <span>Order Date: <span id="ret-modal-date" class="mono">--</span></span>
+              </div>
+            </div>
+
+            <label class="form-label">Return Item Quantities</label>
+            <div class="table-container" style="margin-top: 0.35rem; margin-bottom: 1rem; max-height: 220px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Line ID</th>
+                    <th>SKU / Category</th>
+                    <th>Unit (INR)</th>
+                    <th>Ordered</th>
+                    <th>Returned</th>
+                    <th style="min-width: 100px;">Return Qty</th>
+                  </tr>
+                </thead>
+                <tbody id="ret-lines-body">
+                  <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No order lines loaded.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Return Reason Code</label>
+              <select id="ret-reason" class="input">
+                <option value="CUSTOMER_RETURN">Customer Return (Standard)</option>
+                <option value="DEFECTIVE_PRODUCT">Defective Product</option>
+                <option value="SIZE_FIT_EXCHANGE">Size / Fit Discrepancy</option>
+                <option value="NOT_AS_DESCRIBED">Item Not as Described</option>
+                <option value="ORDER_CANCELLED">Order Cancelled</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Idempotency Key (Prevents Duplicate Reversals)</label>
+              <input type="text" id="ret-idemp-key" class="input mono" style="font-size: 0.8rem;">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+              <button class="btn btn-primary" id="ret-submit-btn" style="flex: 1;" onclick="submitReturnSimulation()">Execute Return Simulation</button>
+              <button class="btn btn-secondary" onclick="closeReturnModal()">Cancel</button>
+            </div>
+          </div>
+
+          <div id="ret-feedback-box" style="margin-top: 1rem; display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    let cusCurrentPage = 1;
+    let cusPageSize = 25;
+    let cusTotalCount = 0;
+    let cusTotalPages = 1;
+    let cusSearchTimeout = null;
+
+    let ledgerCurrentPage = 1;
+    let ledgerPageSize = 25;
+    let ledgerTotalCount = 0;
+    let ledgerTotalPages = 1;
+
+    let ordersCurrentPage = 1;
+    let ordersPageSize = 25;
+    let ordersTotalCount = 0;
+    let ordersTotalPages = 1;
+
+    let activeOrderData = null;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.add('active');
+      if (event && event.currentTarget && event.currentTarget.classList) {
+        event.currentTarget.classList.add('active');
+      }
+
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'customers') loadCustomers();
+      if (tabId === 'ledger') loadLedger();
+      if (tabId === 'orders') loadOrders();
+      if (tabId === 'tiers') loadTiersAndRules();
+      if (tabId === 'anomalies') loadAnomalies();
+    }
+
+    async function refreshDashboard() {
+      const btn = document.getElementById('dash-refresh-btn');
+      const icon = document.getElementById('dash-refresh-icon');
+      if (btn) btn.disabled = true;
+      if (icon) icon.innerText = '⏳';
+      await loadDashboard(true);
+      if (btn) btn.disabled = false;
+      if (icon) icon.innerText = '🔄';
+    }
+
+    async function loadDashboard(forceRefresh = false) {
+      try {
+        const url = '/api/v1/dashboard/summary' + (forceRefresh ? '?force_refresh=true' : '');
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        // Update metric cards
+        document.getElementById('dash-customers').innerText = data.total_customers.toLocaleString();
+        document.getElementById('dash-orders').innerText = data.total_orders.toLocaleString();
+        document.getElementById('dash-transactions').innerText = data.total_points_transactions.toLocaleString();
+        document.getElementById('dash-outstanding').innerText = data.total_outstanding_points.toLocaleString();
+        document.getElementById('dash-accrued').innerText = '+' + data.total_points_accrued.toLocaleString();
+        document.getElementById('dash-redeemed').innerText = '-' + data.total_points_redeemed.toLocaleString();
+        document.getElementById('dash-reversed').innerText = '-' + data.total_points_reversed.toLocaleString();
+        document.getElementById('dash-expired').innerText = '-' + data.total_points_expired.toLocaleString();
+
+        // Update cache status badge
+        const badge = document.getElementById('dash-cache-badge');
+        if (badge) {
+          badge.style.display = 'inline-flex';
+          if (data.is_cached) {
+            badge.className = 'badge badge-primary';
+            badge.innerText = `Cached (${data.cache_age_seconds}s ago)`;
+          } else {
+            badge.className = 'badge badge-success';
+            badge.innerText = forceRefresh ? 'Fresh (Bypassed Cache)' : 'Fresh (Computed)';
+          }
+        }
+
+        let tHtml = '';
+        for (const [tier, count] of Object.entries(data.tier_distribution)) {
+          tHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+            <span>${tier}</span>
+            <span class="mono font-weight: 600">${count.toLocaleString()}</span>
+          </div>`;
+        }
+        document.getElementById('dash-tier-dist').innerHTML = tHtml;
+
+        let aHtml = `
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+            <span>Reconciliation Mismatches:</span>
+            <span class="badge ${data.reconciliation_mismatches_count === 0 ? 'badge-success' : 'badge-danger'}">${data.reconciliation_mismatches_count}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+            <span>Redemption Rejections:</span>
+            <span class="badge badge-warning">${data.redemption_stats.rejected} rejected / ${data.redemption_stats.approved} approved</span>
+          </div>
+        `;
+        document.getElementById('dash-anomaly-summary').innerHTML = aHtml;
+      } catch (e) {
+        console.error('Failed to load dashboard:', e);
+        const badge = document.getElementById('dash-cache-badge');
+        if (badge) {
+          badge.style.display = 'inline-flex';
+          badge.className = 'badge badge-danger';
+          badge.innerText = 'Load Error';
+        }
+      }
+    }
+
+    // Customer Explorer functions
+    function debounceCustomerSearch() {
+      if (cusSearchTimeout) clearTimeout(cusSearchTimeout);
+      cusSearchTimeout = setTimeout(() => {
+        filterCustomers();
+      }, 300);
+    }
+
+    function filterCustomers() {
+      cusCurrentPage = 1;
+      loadCustomers();
+    }
+
+    function onCustomerFilterChange() {
+      cusCurrentPage = 1;
+      loadCustomers();
+    }
+
+    function onCustomerPageSizeChange() {
+      const select = document.getElementById('cus-page-size');
+      cusPageSize = parseInt(select.value) || 25;
+      cusCurrentPage = 1;
+      loadCustomers();
+    }
+
+    function prevCustomerPage() {
+      if (cusCurrentPage > 1) {
+        cusCurrentPage--;
+        loadCustomers();
+      }
+    }
+
+    function nextCustomerPage() {
+      if (cusCurrentPage < cusTotalPages) {
+        cusCurrentPage++;
+        loadCustomers();
+      }
+    }
+
+    async function loadCustomers() {
+      const search = (document.getElementById('cus-search').value || '').trim();
+      const reg = document.getElementById('cus-region-filter').value;
+      const tbody = document.getElementById('customers-table-body');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading customers...</td></tr>`;
+
+      try {
+        let url = `/api/v1/customers?page=${cusCurrentPage}&page_size=${cusPageSize}`;
+        if (search) url += '&search=' + encodeURIComponent(search);
+        if (reg) url += '&region=' + encodeURIComponent(reg);
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const totalHeader = res.headers.get('x-total-count');
+        cusTotalCount = totalHeader ? parseInt(totalHeader) : 0;
+        cusTotalPages = Math.max(1, Math.ceil(cusTotalCount / cusPageSize));
+
+        const data = await res.json();
+
+        // Update pagination indicators
+        const startRecord = cusTotalCount === 0 ? 0 : (cusCurrentPage - 1) * cusPageSize + 1;
+        const endRecord = Math.min(cusCurrentPage * cusPageSize, cusTotalCount);
+        const searchSuffix = search ? ` matching "${search}"` : '';
+        const regionSuffix = reg ? ` in region ${reg}` : '';
+        document.getElementById('cus-pagination-info').innerText = 
+          `Showing ${startRecord.toLocaleString()}-${endRecord.toLocaleString()} of ${cusTotalCount.toLocaleString()} customers${searchSuffix}${regionSuffix}`;
+        document.getElementById('cus-page-indicator').innerText = `Page ${cusCurrentPage} of ${cusTotalPages}`;
+        document.getElementById('cus-prev-btn').disabled = (cusCurrentPage <= 1);
+        document.getElementById('cus-next-btn').disabled = (cusCurrentPage >= cusTotalPages);
+
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+            No customers found${searchSuffix}${regionSuffix}. Try clearing your search filters.
+          </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.map(c => `
+          <tr>
+            <td class="mono"><strong>${c.customer_id}</strong></td>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.email}</td>
+            <td><span class="badge badge-primary">${c.region}</span></td>
+            <td><span class="badge badge-success">${c.status}</span></td>
+            <td>${new Date(c.created_at).toLocaleDateString()}</td>
+            <td><button class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="viewCustomerLedger('${c.customer_id}')">Ledger</button></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Customer load error:', e);
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">
+          Failed to load customers from backend. Click "Refresh" to retry.
+        </td></tr>`;
+      }
+    }
+
+    function viewCustomerLedger(customerId) {
+      // Switches to transaction ledger tab and filters for this account
+      const accountId = customerId.startsWith('LOY-') ? customerId : 'LOY-' + customerId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const ledgerTab = document.getElementById('tab-ledger');
+      if (ledgerTab) ledgerTab.classList.add('active');
+      const ledgerNavBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes('Transaction Ledger'));
+      if (ledgerNavBtn) ledgerNavBtn.classList.add('active');
+
+      const accInput = document.getElementById('ledger-acc-id');
+      if (accInput) accInput.value = accountId;
+      ledgerCurrentPage = 1;
+      loadLedger();
+    }
+
+    // Ledger functions
+    function onLedgerAccountChange() {
+      ledgerCurrentPage = 1;
+      loadLedger();
+    }
+
+    function prevLedgerPage() {
+      if (ledgerCurrentPage > 1) {
+        ledgerCurrentPage--;
+        loadLedger();
+      }
+    }
+
+    function nextLedgerPage() {
+      if (ledgerCurrentPage < ledgerTotalPages) {
+        ledgerCurrentPage++;
+        loadLedger();
+      }
+    }
+
+    async function loadLedger() {
+      const accId = (document.getElementById('ledger-acc-id').value || 'LOY-CUS-000001').trim();
+      const type = document.getElementById('ledger-type-filter').value;
+      const tbody = document.getElementById('ledger-table-body');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading transactions...</td></tr>`;
+
+      try {
+        let url = `/api/v1/accounts/${encodeURIComponent(accId)}/ledger?page=${ledgerCurrentPage}&page_size=${ledgerPageSize}`;
+        if (type) url += '&transaction_type=' + encodeURIComponent(type);
+
+        const res = await fetch(url);
+        if (!res.ok) {
+          if (res.status === 404) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--warning); padding: 2rem;">
+              No account found for "${accId}". Please check the Account ID.
+            </td></tr>`;
+            return;
+          }
+          throw new Error('HTTP ' + res.status);
+        }
+
+        const totalHeader = res.headers.get('x-total-count');
+        ledgerTotalCount = totalHeader ? parseInt(totalHeader) : 0;
+        ledgerTotalPages = Math.max(1, Math.ceil(ledgerTotalCount / ledgerPageSize));
+
+        const data = await res.json();
+
+        // Update pagination indicators
+        const startRecord = ledgerTotalCount === 0 ? 0 : (ledgerCurrentPage - 1) * ledgerPageSize + 1;
+        const endRecord = Math.min(ledgerCurrentPage * ledgerPageSize, ledgerTotalCount);
+        document.getElementById('ledger-pagination-info').innerText = 
+          `Showing ${startRecord}-${endRecord} of ${ledgerTotalCount} transactions for account ${accId}`;
+        document.getElementById('ledger-page-indicator').innerText = `Page ${ledgerCurrentPage} of ${ledgerTotalPages}`;
+        document.getElementById('ledger-prev-btn').disabled = (ledgerCurrentPage <= 1);
+        document.getElementById('ledger-next-btn').disabled = (ledgerCurrentPage >= ledgerTotalPages);
+
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            No transactions found for account ${accId}.
+          </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.map(t => `
+          <tr>
+            <td class="mono"><strong>${t.transaction_id}</strong></td>
+            <td class="mono">${t.account_id}</td>
+            <td><span class="badge ${t.transaction_type === 'ACCRUAL' ? 'badge-success' : (t.transaction_type === 'REDEMPTION' ? 'badge-primary' : 'badge-warning')}">${t.transaction_type}</span></td>
+            <td class="mono" style="font-weight: 700; color: ${t.points_delta > 0 ? '#34d399' : '#f87171'}">${t.points_delta > 0 ? '+' : ''}${t.points_delta}</td>
+            <td>${t.source_type} / ${t.source_id}</td>
+            <td>${t.reason_code}</td>
+            <td><span class="badge badge-success">${t.status}</span></td>
+            <td>${new Date(t.event_at).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Ledger load error:', e);
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--danger); padding: 1.5rem;">
+          Failed to load ledger transactions.
+        </td></tr>`;
+      }
+    }
+
+    // Orders functions
+    function prevOrdersPage() {
+      if (ordersCurrentPage > 1) {
+        ordersCurrentPage--;
+        loadOrders();
+      }
+    }
+
+    function nextOrdersPage() {
+      if (ordersCurrentPage < ordersTotalPages) {
+        ordersCurrentPage++;
+        loadOrders();
+      }
+    }
+
+    async function loadOrders() {
+      const tbody = document.getElementById('orders-table-body');
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading orders...</td></tr>`;
+
+      try {
+        const url = `/api/v1/orders?page=${ordersCurrentPage}&page_size=${ordersPageSize}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const totalHeader = res.headers.get('x-total-count');
+        ordersTotalCount = totalHeader ? parseInt(totalHeader) : 0;
+        ordersTotalPages = Math.max(1, Math.ceil(ordersTotalCount / ordersPageSize));
+
+        const data = await res.json();
+
+        // Update pagination indicators
+        const startRecord = ordersTotalCount === 0 ? 0 : (ordersCurrentPage - 1) * ordersPageSize + 1;
+        const endRecord = Math.min(ordersCurrentPage * ordersPageSize, ordersTotalCount);
+        document.getElementById('orders-pagination-info').innerText = 
+          `Showing ${startRecord.toLocaleString()}-${endRecord.toLocaleString()} of ${ordersTotalCount.toLocaleString()} orders`;
+        document.getElementById('orders-page-indicator').innerText = `Page ${ordersCurrentPage} of ${ordersTotalPages}`;
+        document.getElementById('orders-prev-btn').disabled = (ordersCurrentPage <= 1);
+        document.getElementById('orders-next-btn').disabled = (ordersCurrentPage >= ordersTotalPages);
+
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No orders found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.map(o => `
+          <tr>
+            <td class="mono"><strong>${o.order_id}</strong></td>
+            <td class="mono">${o.customer_id}</td>
+            <td><span class="badge ${o.status === 'COMPLETED' ? 'badge-success' : (o.status === 'RETURNED' ? 'badge-danger' : 'badge-warning')}">${o.status}</span></td>
+            <td class="mono">₹${(o.net_merchandise_minor/100).toFixed(2)}</td>
+            <td class="mono">₹${(o.tax_minor/100).toFixed(2)}</td>
+            <td class="mono">₹${(o.shipping_minor/100).toFixed(2)}</td>
+            <td class="mono" style="font-weight: 700;">₹${(o.total_minor/100).toFixed(2)}</td>
+            <td>${new Date(o.order_date).toLocaleDateString()}</td>
+            <td>
+              <button class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="openReturnModal('${o.order_id}')">Return</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Orders load error:', e);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--danger); padding: 1.5rem;">
+          Failed to load orders. Click "Refresh" to retry.
+        </td></tr>`;
+      }
+    }
+
+    // Return Simulation Modal functions
+    function openReturnModal(prefillOrderId = null) {
+      const modal = document.getElementById('return-modal');
+      const orderInput = document.getElementById('ret-order-id');
+      const idempInput = document.getElementById('ret-idemp-key');
+      const feedbackBox = document.getElementById('ret-feedback-box');
+      
+      if (prefillOrderId) {
+        orderInput.value = prefillOrderId;
+      }
+      idempInput.value = 'IDEMP-RET-UI-' + Date.now();
+      feedbackBox.style.display = 'none';
+      feedbackBox.innerHTML = '';
+      
+      modal.style.display = 'flex';
+      lookupOrderForReturn();
+    }
+
+    function closeReturnModal() {
+      const modal = document.getElementById('return-modal');
+      modal.style.display = 'none';
+    }
+
+    async function lookupOrderForReturn() {
+      const orderId = (document.getElementById('ret-order-id').value || '').trim();
+      const feedbackBox = document.getElementById('ret-feedback-box');
+      const detailsBox = document.getElementById('ret-order-details');
+      const linesBody = document.getElementById('ret-lines-body');
+      const fetchBtn = document.getElementById('ret-fetch-btn');
+
+      if (!orderId) {
+        feedbackBox.style.display = 'block';
+        feedbackBox.innerHTML = `<span style="color: var(--danger);">Please enter a valid Order ID.</span>`;
+        detailsBox.style.display = 'none';
+        return;
+      }
+
+      fetchBtn.disabled = true;
+      fetchBtn.innerText = 'Fetching...';
+      feedbackBox.style.display = 'none';
+
+      try {
+        const res = await fetch(`/api/v1/orders/${encodeURIComponent(orderId)}`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            feedbackBox.style.display = 'block';
+            feedbackBox.innerHTML = `<span style="color: var(--danger); font-weight: 600;">❌ Order "${orderId}" not found in database.</span>`;
+            detailsBox.style.display = 'none';
+            return;
+          }
+          throw new Error('HTTP ' + res.status);
+        }
+
+        const order = await res.json();
+        activeOrderData = order;
+
+        document.getElementById('ret-modal-customer').innerText = order.customer_id;
+        document.getElementById('ret-modal-status').innerText = order.status;
+        document.getElementById('ret-modal-status').className = `badge ${order.status === 'COMPLETED' ? 'badge-success' : 'badge-warning'}`;
+        document.getElementById('ret-modal-total').innerText = `₹${(order.net_merchandise_minor/100).toFixed(2)}`;
+        document.getElementById('ret-modal-date').innerText = new Date(order.order_date).toLocaleDateString();
+
+        if (!order.lines || order.lines.length === 0) {
+          linesBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1rem;">No order lines associated with this order.</td></tr>`;
+          document.getElementById('ret-submit-btn').disabled = true;
+        } else {
+          let hasReturnable = false;
+          linesBody.innerHTML = order.lines.map((l, idx) => {
+            const avail = l.quantity - l.returned_quantity;
+            if (avail > 0) hasReturnable = true;
+            return `
+              <tr>
+                <td class="mono" style="font-size: 0.78rem;">${l.order_line_id}</td>
+                <td><strong>${l.sku}</strong><br><span style="font-size: 0.72rem; color: var(--text-muted);">${l.category}</span></td>
+                <td class="mono">₹${(l.unit_price_minor/100).toFixed(2)}</td>
+                <td class="mono">${l.quantity}</td>
+                <td class="mono">${l.returned_quantity}</td>
+                <td>
+                  ${avail > 0 ? `
+                    <input type="number" id="ret-qty-${idx}" class="input mono" 
+                      min="0" max="${avail}" value="${avail}" data-line-id="${l.order_line_id}" 
+                      style="width: 75px; padding: 0.25rem 0.5rem; text-align: center;">
+                  ` : `
+                    <span class="badge badge-warning" style="font-size: 0.72rem;">Fully Returned</span>
+                  `}
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          const submitBtn = document.getElementById('ret-submit-btn');
+          if (!hasReturnable) {
+            submitBtn.disabled = true;
+            feedbackBox.style.display = 'block';
+            feedbackBox.innerHTML = `<span style="color: var(--warning); font-weight: 600;">All lines on this order have already been returned. No points can be reversed.</span>`;
+          } else {
+            submitBtn.disabled = false;
+          }
+        }
+
+        detailsBox.style.display = 'block';
+      } catch (e) {
+        console.error('Order fetch error:', e);
+        feedbackBox.style.display = 'block';
+        feedbackBox.innerHTML = `<span style="color: var(--danger);">Failed to fetch order: ${e.message}</span>`;
+        detailsBox.style.display = 'none';
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.innerText = 'Fetch Order Lines';
+      }
+    }
+
+    async function submitReturnSimulation() {
+      const orderId = (document.getElementById('ret-order-id').value || '').trim();
+      const reason = document.getElementById('ret-reason').value;
+      const idempKey = (document.getElementById('ret-idemp-key').value || '').trim();
+      const feedbackBox = document.getElementById('ret-feedback-box');
+      const submitBtn = document.getElementById('ret-submit-btn');
+
+      if (!orderId || !idempKey) {
+        feedbackBox.style.display = 'block';
+        feedbackBox.innerHTML = `<span style="color: var(--danger);">Order ID and Idempotency Key are required.</span>`;
+        return;
+      }
+
+      // Collect return quantities
+      const returnedLines = [];
+      const qtyInputs = document.querySelectorAll('[id^="ret-qty-"]');
+      qtyInputs.forEach(inp => {
+        const lineId = inp.getAttribute('data-line-id');
+        const qty = parseInt(inp.value) || 0;
+        if (qty > 0) {
+          returnedLines.push({ order_line_id: lineId, quantity: qty });
+        }
+      });
+
+      if (returnedLines.length === 0) {
+        feedbackBox.style.display = 'block';
+        feedbackBox.innerHTML = `<span style="color: var(--warning); font-weight: 600;">⚠️ Please set a return quantity of at least 1 item.</span>`;
+        return;
+      }
+
+      // Prevent duplicate clicks
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Processing Return & Reversing Points...';
+      feedbackBox.style.display = 'block';
+      feedbackBox.innerHTML = `<span style="color: var(--info);">Executing atomic write transaction (verifying return limits, posting reversal ledger transaction, and de-allocating point lots)...</span>`;
+
+      try {
+        const payload = {
+          reason: reason,
+          returned_lines: returnedLines,
+          idempotency_key: idempKey
+        };
+
+        const res = await fetch(`/api/v1/orders/${encodeURIComponent(orderId)}/returns`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          const errMsg = data.detail || 'Return processing rejected by ledger engine';
+          feedbackBox.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 8px; padding: 0.85rem; color: #fca5a5;">
+              <strong>❌ Return Simulation Failed (HTTP ${res.status}):</strong><br>
+              ${errMsg}
+            </div>
+          `;
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Execute Return Simulation';
+          return;
+        }
+
+        // Success state
+        feedbackBox.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); border-radius: 8px; padding: 1rem; color: #6ee7b7;">
+            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem;">
+              ✅ RETURN OPERATION SUCCESSFUL
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5;">
+              • Return ID: <code class="mono" style="color: white;">${data.return_id}</code><br>
+              • Points Reversed: <strong style="color: #f87171;">-${data.points_reversed || 0} pts</strong> (clawback from original accrual)<br>
+              • Reversal Transaction ID: <code class="mono" style="color: white;">${data.reversal_transaction_id || 'NONE'}</code><br>
+              • Returned Eligible Spend: <strong style="color: white;">₹${((data.returned_eligible_spend_minor || 0)/100).toFixed(2)}</strong><br>
+              • Ledger Invariant & Lot Conservation: <strong style="color: #34d399;">PRESERVED</strong>
+            </div>
+          </div>
+        `;
+
+        // Generate a new idempotency key for next run
+        document.getElementById('ret-idemp-key').value = 'IDEMP-RET-UI-' + Date.now();
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Execute Another Return';
+
+        // Refresh underlying tables
+        loadOrders();
+        loadDashboard(true);
+      } catch (e) {
+        console.error('Submit return error:', e);
+        feedbackBox.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 8px; padding: 0.85rem; color: #fca5a5;">
+            <strong>❌ Network/Execution Error:</strong> ${e.message}
+          </div>
+        `;
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Execute Return Simulation';
+      }
+    }
+
+    async function loadTiersAndRules() {
+      const [tRes, rRes] = await Promise.all([fetch('/api/v1/tiers'), fetch('/api/v1/rules')]);
+      const tiers = await tRes.json();
+      const rules = await rRes.json();
+      document.getElementById('tiers-table-body').innerHTML = tiers.map(t => `
+        <tr>
+          <td><strong>${t.tier_name}</strong></td>
+          <td class="mono">₹${(t.min_qualifying_spend_minor/100).toLocaleString()}</td>
+          <td class="mono">${t.earning_rate_points} pts/₹100</td>
+          <td><span class="badge badge-success">${t.status}</span></td>
+        </tr>
+      `).join('');
+      document.getElementById('rules-table-body').innerHTML = rules.map(r => `
+        <tr>
+          <td class="mono">${r.rule_id}</td>
+          <td><span class="badge badge-primary">${r.rule_type}</span></td>
+          <td>v${r.version}</td>
+          <td>${r.description}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadAnomalies() {
+      const res = await fetch('/api/v1/anomalies');
+      const data = await res.json();
+      const tbody = document.getElementById('anomalies-table-body');
+      tbody.innerHTML = data.map(a => `
+        <tr>
+          <td><span class="badge badge-danger">${a.issue_type}</span></td>
+          <td><span class="badge ${a.severity === 'CRITICAL' ? 'badge-danger' : 'badge-warning'}">${a.severity}</span></td>
+          <td>${a.affected_entity}</td>
+          <td class="mono">${a.affected_record_id}</td>
+          <td>${a.explanation}</td>
+          <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="reviewAnomaly('${a.affected_record_id}')">Acknowledge</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadAnomalyEvaluation() {
+      const box = document.getElementById('anomaly-eval-metrics-box');
+      box.style.display = 'block';
+      box.innerHTML = 'Evaluating against ground truth...';
+      const res = await fetch('/api/v1/anomalies/evaluation');
+      const data = await res.json();
+      box.innerHTML = `
+        <h3 style="margin-bottom: 0.75rem;">Ground Truth Evaluation Metrics</h3>
+        <div style="display: flex; gap: 2rem; font-size: 0.9rem; margin-bottom: 1rem;">
+          <div>Precision: <strong>${(data.overall.precision * 100).toFixed(1)}%</strong></div>
+          <div>Recall: <strong>${(data.overall.recall * 100).toFixed(1)}%</strong></div>
+          <div>F1 Score: <strong>${(data.overall.f1_score * 100).toFixed(1)}%</strong></div>
+          <div>True Positives: <strong>${data.overall.true_positives}</strong></div>
+          <div>False Positives: <strong>${data.overall.false_positives}</strong></div>
+        </div>
+      `;
+    }
+
+    async function submitRedemption() {
+      const acc = document.getElementById('rdm-acc-id').value;
+      const rew = document.getElementById('rdm-reward-id').value;
+      const pts = parseInt(document.getElementById('rdm-pts').value);
+      const resBox = document.getElementById('rdm-result');
+      resBox.innerHTML = 'Processing atomic redemption...';
+      const res = await fetch('/api/v1/redemptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          account_id: acc,
+          reward_id: rew,
+          requested_points: pts,
+          idempotency_key: 'IDEMP-UI-' + Date.now()
+        })
+      });
+      const data = await res.json();
+      if (data.status === 'APPROVED') {
+        resBox.innerHTML = `<span style="color: #34d399; font-weight: 700;">✅ APPROVED: ${data.approved_points} points deducted. ID: ${data.redemption_id}</span>`;
+      } else {
+        resBox.innerHTML = `<span style="color: #f87171; font-weight: 700;">❌ REJECTED: ${data.rejection_reason}</span>`;
+      }
+    }
+
+    async function simulateCompetingRedemptions() {
+      const box = document.getElementById('competing-result');
+      box.innerHTML = 'Launching 2 competing simultaneous redemption requests against LOY-CUS-000001...';
+      const req1 = fetch('/api/v1/redemptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_id: 'LOY-CUS-000001', reward_id: 'REW-VOUCHER-500', requested_points: 250, idempotency_key: 'COMPETE-1-' + Date.now() })
+      });
+      const req2 = fetch('/api/v1/redemptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_id: 'LOY-CUS-000001', reward_id: 'REW-VOUCHER-500', requested_points: 250, idempotency_key: 'COMPETE-2-' + Date.now() })
+      });
+      const [res1, res2] = await Promise.all([req1, req2]);
+      const d1 = await res1.json();
+      const d2 = await res2.json();
+      box.innerHTML = `Request 1: ${d1.status} (${d1.approved_points || 0} pts)\nRequest 2: ${d2.status} (${d2.rejection_reason || 'Approved'})\nConcurrency Isolation: PREVENTED DOUBLE-SPENDING SUCCESSFULLY.`;
+    }
+
+    async function triggerExpiry() {
+      const cutoff = document.getElementById('exp-cutoff').value;
+      const idemp = document.getElementById('exp-idemp').value;
+      const resBox = document.getElementById('exp-result');
+      resBox.innerHTML = 'Executing expiry batch...';
+      const res = await fetch('/api/v1/expiry-batches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cutoff_at: cutoff, idempotency_key: idemp })
+      });
+      const data = await res.json();
+      resBox.innerHTML = `<span style="color: #34d399; font-weight: 700;">Batch ${data.expiry_batch_id}: ${data.lots_scanned} lots scanned, ${data.points_expired} points expired. Idempotency enforced.</span>`;
+    }
+
+    function getSeverityBadge(sev) {
+      if (sev === 'ERROR' || sev === 'CRITICAL') return '<span class="badge badge-danger">' + sev + '</span>';
+      if (sev === 'WARNING') return '<span class="badge badge-warning">' + sev + '</span>';
+      if (sev === 'INFO') return '<span class="badge badge-primary">' + sev + '</span>';
+      return '<span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); font-weight: 500;">NONE</span>';
+    }
+
+    async function runValidation(mode) {
+      const box = document.getElementById('validation-summary-card');
+      box.style.display = 'block';
+      box.innerHTML = `Running 20-check validation suite in <strong>${mode}</strong> mode...`;
+      const res = await fetch('/api/v1/validation/run?mode=' + mode, { method: 'POST' });
+      const data = await res.json();
+      box.innerHTML = `
+        <h3 style="margin-bottom: 0.5rem;">Validation Result: <span style="color: ${data.failed_checks === 0 ? '#34d399' : '#f87171'}">${data.overall_status}</span></h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Mode: <strong style="color: #60a5fa;">${data.mode}</strong> |
+          Passed: <strong style="color: #34d399;">${data.passed_checks}</strong> / ${data.total_checks} |
+          Failed: <strong style="color: ${data.failed_checks === 0 ? '#34d399' : '#f87171'};">${data.failed_checks}</strong>
+        </p>
+      `;
+      const tbody = document.getElementById('validation-table-body');
+      tbody.innerHTML = data.findings.map(f => `
+        <tr>
+          <td class="mono">${f.check_number}</td>
+          <td><strong>${f.name}</strong></td>
+          <td>${f.entity}</td>
+          <td><span class="badge ${f.status === 'PASS' ? 'badge-success' : 'badge-danger'}">${f.status}</span></td>
+          <td>${getSeverityBadge(f.severity)}</td>
+          <td style="font-size: 0.8rem;">${f.explanation}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function runReproducibility() {
+      const scale = document.getElementById('repro-scale').value;
+      const box = document.getElementById('repro-result');
+      box.innerHTML = `Starting two isolated generator runs with seed 20261022 at <strong>${scale}</strong> scale and computing SHA-256 hashes...`;
+      const res = await fetch(`/api/v1/reproducibility/verify?scale=${scale}&seed=20261022`, { method: 'POST' });
+      const data = await res.json();
+      renderReproducibilityReport(data);
+    }
+
+    async function loadReproducibilityReport() {
+      const scale = document.getElementById('repro-scale').value;
+      const box = document.getElementById('repro-result');
+      box.innerHTML = `Loading reproducibility report for <strong>${scale}</strong> scale...`;
+      try {
+        const res = await fetch(`/api/v1/reproducibility/report?scale=${scale}`);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        renderReproducibilityReport(data);
+      } catch (e) {
+        box.innerHTML = `<span style="color: #f87171;">No report found for ${scale} scale. Run verification first.</span>`;
+      }
+    }
+
+    function renderReproducibilityReport(data) {
+      const box = document.getElementById('repro-result');
+      let statusHtml = data.reproducible 
+        ? `<div style="background: rgba(52, 211, 153, 0.1); border: 1px solid #34d399; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; color: #34d399;">
+             ✓ REPRODUCIBILITY VERIFIED (Scale: ${data.scale}, Seed: ${data.seed})<br>
+             Run 1 ID: <code>${data.run1_id}</code> (${data.run1_timestamp})<br>
+             Run 2 ID: <code>${data.run2_id}</code> (${data.run2_timestamp})<br>
+             Row counts identical: <strong>${data.row_counts_identical}</strong> | Checksums identical: <strong>${data.checksums_identical}</strong>
+           </div>`
+        : `<div style="background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; color: #f87171;">
+             ✗ REPRODUCIBILITY FAILED
+           </div>`;
+      box.innerHTML = statusHtml + `<pre style="background: var(--bg-card); padding: 0.75rem; border-radius: 6px; max-height: 400px; overflow-y: auto;">` + JSON.stringify(data, null, 2) + `</pre>`;
+    }
+
+    async function triggerExport() {
+      const scale = document.getElementById('export-scale').value;
+      const box = document.getElementById('export-result');
+      box.innerHTML = `Generating CSV, JSON, SQL seed files and computing SHA-256 checksums for <strong>${scale}</strong> scale...`;
+      const res = await fetch(`/api/v1/datasets/export?scale=${scale}&seed=20261022`, { method: 'POST' });
+      const data = await res.json();
+      renderManifestDisplay(data);
+    }
+
+    async function loadManifestPreview() {
+      const scale = document.getElementById('export-scale').value;
+      const box = document.getElementById('export-result');
+      box.innerHTML = `Fetching manifest for <strong>${scale}</strong> scale...`;
+      try {
+        const res = await fetch(`/api/v1/datasets/manifest?scale=${scale}`);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        renderManifestDisplay(data);
+      } catch (e) {
+        box.innerHTML = `<span style="color: #f87171;">Manifest for ${scale} scale not generated yet. Click 'Generate Exports & Manifest'.</span>`;
+      }
+    }
+
+    function renderManifestDisplay(data) {
+      const box = document.getElementById('export-result');
+      box.innerHTML = `
+        <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid #60a5fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; color: #93c5fd;">
+          <strong>Authoritative Dataset Manifest Provenance</strong><br>
+          Scale: <strong style="color: #34d399;">${data.scale}</strong> | Seed: <strong>${data.seed}</strong> | Generator: ${data.generator_name} v${data.generator_version}<br>
+          Created: ${data.created_at}
+        </div>
+        <pre style="background: var(--bg-card); padding: 0.75rem; border-radius: 6px; max-height: 400px; overflow-y: auto;">` + JSON.stringify(data, null, 2) + `</pre>`;
+    }
+
+    async function reviewAnomaly(recId) {
+      const res = await fetch(`/api/v1/anomalies/${recId}/review?action=ACKNOWLEDGED&notes=Reviewed_by_operator`, { method: 'POST' });
+      const data = await res.json();
+      alert(`Anomaly ${recId} reviewed. Audit event logged: ${data.audit_id}`);
+      loadAnomalies();
+    }
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>

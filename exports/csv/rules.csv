@@ -1,0 +1,6 @@
+rule_id,rule_type,version,description,parameters,effective_from,effective_to,status
+RULE-ACCRUAL-V1,ACCRUAL,1,Standard merchandise spend accrual rule,"{""tax_eligible"": false, ""shipping_eligible"": false, ""discount_treatment"": ""PROPORTIONAL"", ""rounding_mode"": ""FLOOR"", ""cancelled_orders_earn"": false}",2026-01-01T00:00:00,,ACTIVE
+RULE-REDEMPTION-V1,REDEMPTION,1,Earliest-expiry-first redemption policy,"{""depletion_strategy"": ""EARLIEST_EXPIRY_FIRST"", ""all_or_nothing"": true}",2026-01-01T00:00:00,,ACTIVE
+RULE-REVERSAL-V1,REVERSAL,1,Proportional accrual reversal on return,"{""reversal_basis"": ""ORIGINAL_PROPORTIONAL"", ""allow_negative_balance"": true}",2026-01-01T00:00:00,,ACTIVE
+RULE-EXPIRY-V1,EXPIRY,1,365-day point lot validity rule,"{""validity_days"": 365, ""end_of_day_convention"": true}",2026-01-01T00:00:00,,ACTIVE
+RULE-TIER-V1,TIER,1,Rolling 12-month net qualifying merchandise spend,"{""rolling_window_days"": 365, ""tax_eligible"": false, ""shipping_eligible"": false, ""deduct_returns"": true}",2026-01-01T00:00:00,,ACTIVE
