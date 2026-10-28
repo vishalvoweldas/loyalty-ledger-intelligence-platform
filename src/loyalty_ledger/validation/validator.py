@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import json
 
 from loyalty_ledger.domain.models import (
@@ -15,10 +15,11 @@ class ValidationEngine:
     def __init__(self, session: Session):
         self.session = session
 
-    def validate_all(self, mode: str = "baseline") -> Dict[str, Any]:
+    def validate_all(self, mode: str = "baseline", scale: Optional[str] = None) -> Dict[str, Any]:
         """
         Runs the 20-check validation suite.
         mode: 'baseline' (validates baseline scope without anomalies) or 'evaluation' (acknowledges injected ground truth anomalies).
+        scale: 'starter', 'full', or None (auto-detects profile from customer count).
         """
         findings = []
 
@@ -77,7 +78,7 @@ class ValidationEngine:
         findings.extend(self._check_ground_truth_references())
 
         # Check 19: Export row counts & entity integrity
-        findings.extend(self._check_entity_counts())
+        findings.extend(self._check_entity_counts(scale=scale))
 
         # Check 20: Reproducibility verification status
         findings.extend(self._check_reproducibility_status())
@@ -200,6 +201,7 @@ class ValidationEngine:
         bad_math = self.session.query(Order).filter(
             Order.total_minor != (Order.net_merchandise_minor + Order.tax_minor + Order.shipping_minor)
         ).count()
+        total_orders = self.session.query(Order).count()
         passed = (bad_math == 0)
         return [{
             "check_number": 7,
@@ -208,13 +210,14 @@ class ValidationEngine:
             "status": "PASS" if passed else "FAIL",
             "passed": passed,
             "severity": "NONE" if passed else "ERROR",
-            "explanation": f"Orders with mismatched arithmetic: {bad_math} (all 100,000 verified)"
+            "explanation": f"Orders with mismatched arithmetic: {bad_math} (all {total_orders:,} verified)"
         }]
 
     def _check_return_quantities(self) -> List[Dict[str, Any]]:
         excessive_returns = self.session.query(OrderLine).filter(
             OrderLine.returned_quantity > OrderLine.quantity
         ).count()
+        total_lines = self.session.query(OrderLine).count()
         passed = (excessive_returns == 0)
         return [{
             "check_number": 8,
@@ -223,7 +226,7 @@ class ValidationEngine:
             "status": "PASS" if passed else "FAIL",
             "passed": passed,
             "severity": "NONE" if passed else "ERROR",
-            "explanation": f"Lines with returned_quantity > quantity: {excessive_returns} (all 199,822 verified)"
+            "explanation": f"Lines with returned_quantity > quantity: {excessive_returns} (all {total_lines:,} verified)"
         }]
 
     def _check_accrual_calculations(self) -> List[Dict[str, Any]]:
@@ -243,11 +246,12 @@ class ValidationEngine:
         total_missing = self.session.query(OrderReturn).filter(OrderReturn.reversal_transaction_id == None).count()
         base_missing = self.session.query(OrderReturn).filter(~OrderReturn.return_id.in_(gt_an003), OrderReturn.reversal_transaction_id == None).count()
 
+        total_returns = self.session.query(OrderReturn).count()
         if mode == "baseline":
             passed = (base_missing == 0)
             status = "PASS" if passed else "FAIL"
             severity = "NONE" if passed else "ERROR"
-            explanation = f"Baseline verified: 20,000 returns checked, 0 missing reversals. ({len(gt_an003)} intentional AN-003 returns isolated in ground truth)."
+            explanation = f"Baseline verified: {total_returns:,} returns checked, 0 missing reversals. ({len(gt_an003)} intentional AN-003 returns isolated in ground truth)."
         else:
             passed = (base_missing == 0 and total_missing == len(gt_an003))
             status = "PASS" if passed else "FAIL"
@@ -281,11 +285,12 @@ class ValidationEngine:
                 if acc.account_id not in gt_an001:
                     base_mismatches += 1
 
+        total_accounts = self.session.query(LoyaltyAccount).count()
         if mode == "baseline":
             passed = (base_mismatches == 0)
             status = "PASS" if passed else "FAIL"
             severity = "NONE" if passed else "ERROR"
-            explanation = f"Baseline verified: 19,998 accounts checked, 0 balance discrepancies. ({len(gt_an001)} intentional AN-001 anomalies isolated in ground truth)."
+            explanation = f"Baseline verified: {total_accounts:,} accounts checked, 0 balance discrepancies. ({len(gt_an001)} intentional AN-001 anomalies isolated in ground truth)."
         else:
             passed = (base_mismatches == 0 and total_mismatches == len(gt_an001))
             status = "PASS" if passed else "FAIL"
@@ -319,11 +324,12 @@ class ValidationEngine:
                 if lot.lot_id not in gt_an004:
                     base_discrepancies += 1
 
+        total_lots = self.session.query(PointLot).count()
         if mode == "baseline":
             passed = (base_discrepancies == 0)
             status = "PASS" if passed else "FAIL"
             severity = "NONE" if passed else "ERROR"
-            explanation = f"Baseline verified: 99,992 point lots checked, 0 allocation math discrepancies. ({len(gt_an004)} intentional AN-004 lots isolated in ground truth)."
+            explanation = f"Baseline verified: {total_lots:,} point lots checked, 0 allocation math discrepancies. ({len(gt_an004)} intentional AN-004 lots isolated in ground truth)."
         else:
             passed = (base_discrepancies == 0 and total_discrepancies == len(gt_an004))
             status = "PASS" if passed else "FAIL"
@@ -349,11 +355,12 @@ class ValidationEngine:
         total_excessive = len(excessive_txs)
         base_excessive = sum(1 for tx in excessive_txs if tx.source_id not in gt_an002 and tx.transaction_id not in gt_an002)
 
+        total_rdm = self.session.query(Redemption).count()
         if mode == "baseline":
             passed = (base_excessive == 0)
             status = "PASS" if passed else "FAIL"
             severity = "NONE" if passed else "ERROR"
-            explanation = f"Baseline verified: 98,994 redemptions checked, 0 overdrawn attempts. ({len(gt_an002)} intentional AN-002 redemptions isolated in ground truth)."
+            explanation = f"Baseline verified: {total_rdm:,} redemptions checked, 0 overdrawn attempts. ({len(gt_an002)} intentional AN-002 redemptions isolated in ground truth)."
         else:
             passed = (base_excessive == 0 and total_excessive == len(gt_an002))
             status = "PASS" if passed else "FAIL"
@@ -380,11 +387,12 @@ class ValidationEngine:
         total_dup = len(dup_exp_lots)
         base_dup = sum(1 for lot_id in dup_exp_lots if lot_id not in gt_an004)
 
+        total_lots = self.session.query(PointLot).count()
         if mode == "baseline":
             passed = (base_dup == 0)
             status = "PASS" if passed else "FAIL"
             severity = "NONE" if passed else "ERROR"
-            explanation = f"Baseline verified: 99,992 point lots checked, 0 duplicate expiry allocations. ({len(gt_an004)} intentional AN-004 lots isolated in ground truth)."
+            explanation = f"Baseline verified: {total_lots:,} point lots checked, 0 duplicate expiry allocations. ({len(gt_an004)} intentional AN-004 lots isolated in ground truth)."
         else:
             passed = (base_dup == 0 and total_dup == len(gt_an004))
             status = "PASS" if passed else "FAIL"
@@ -427,6 +435,7 @@ class ValidationEngine:
     def _check_lifecycle_legality(self) -> List[Dict[str, Any]]:
         valid_statuses = ["PENDING", "COMPLETED", "PARTIALLY_RETURNED", "RETURNED", "CANCELLED"]
         invalid = self.session.query(Order).filter(~Order.status.in_(valid_statuses)).count()
+        total_orders = self.session.query(Order).count()
         passed = (invalid == 0)
         return [{
             "check_number": 16,
@@ -435,13 +444,14 @@ class ValidationEngine:
             "status": "PASS" if passed else "FAIL",
             "passed": passed,
             "severity": "NONE" if passed else "ERROR",
-            "explanation": f"Orders with invalid status: {invalid} (all 100,000 orders valid)"
+            "explanation": f"Orders with invalid status: {invalid} (all {total_orders:,} orders valid)"
         }]
 
     def _check_idempotency_keys(self) -> List[Dict[str, Any]]:
         tx_idemp_dups = self.session.query(
             PointsTransaction.idempotency_key
         ).group_by(PointsTransaction.idempotency_key).having(func.count(PointsTransaction.idempotency_key) > 1).count()
+        total_tx = self.session.query(PointsTransaction).count()
         passed = (tx_idemp_dups == 0)
         return [{
             "check_number": 17,
@@ -450,7 +460,7 @@ class ValidationEngine:
             "status": "PASS" if passed else "FAIL",
             "passed": passed,
             "severity": "NONE" if passed else "ERROR",
-            "explanation": f"Duplicate idempotency keys: {tx_idemp_dups} (all 300,000 keys unique)"
+            "explanation": f"Duplicate idempotency keys: {tx_idemp_dups} (all {total_tx:,} keys unique)"
         }]
 
     def _check_ground_truth_references(self) -> List[Dict[str, Any]]:
@@ -466,21 +476,39 @@ class ValidationEngine:
             "explanation": f"Total labelled anomalies in ground truth: {len(gts)} (all 5 classes AN-001 through AN-005 verified)"
         }]
 
-    def _check_entity_counts(self) -> List[Dict[str, Any]]:
+    def _check_entity_counts(self, scale: Optional[str] = None) -> List[Dict[str, Any]]:
         cus_count = self.session.query(Customer).count()
         ord_count = self.session.query(Order).count()
         tx_count = self.session.query(PointsTransaction).count()
         lots_count = self.session.query(PointLot).count()
         allocs_count = self.session.query(TransactionLotAllocation).count()
-        passed = (cus_count == 20000 and ord_count == 100000 and tx_count == 300000)
+
+        # Determine target profile
+        if scale in ("starter", "full"):
+            profile = scale
+        elif cus_count <= 1000:
+            profile = "starter"
+        else:
+            profile = "full"
+
+        if profile == "starter":
+            expected_cus = 500
+            expected_ord = 2500
+            expected_tx = 7500
+        else:
+            expected_cus = 20000
+            expected_ord = 100000
+            expected_tx = 300000
+
+        passed = (cus_count == expected_cus and ord_count == expected_ord and tx_count == expected_tx)
         return [{
             "check_number": 19,
             "name": "ENTITY_ROW_COUNTS",
             "entity": "Multiple",
             "status": "PASS" if passed else "FAIL",
             "passed": passed,
-            "severity": "INFO",
-            "explanation": f"Customers: {cus_count}, Orders: {ord_count}, Transactions: {tx_count}, Lots: {lots_count}, Allocations: {allocs_count}"
+            "severity": "INFO" if passed else "ERROR",
+            "explanation": f"Profile: {profile.upper()} (expected: {expected_cus:,} cus, {expected_ord:,} ord, {expected_tx:,} tx). Actual: {cus_count:,} Customers, {ord_count:,} Orders, {tx_count:,} Transactions, {lots_count:,} Lots, {allocs_count:,} Allocations"
         }]
 
     def _check_reproducibility_status(self) -> List[Dict[str, Any]]:

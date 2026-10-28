@@ -5,7 +5,7 @@
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red.svg)](https://www.sqlalchemy.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Passed](https://img.shields.io/badge/Validation-20%2F20%20Passed-brightgreen.svg)](reports/validation_report.md)
-[![Tests: 26 Passed](https://img.shields.io/badge/Tests-26%2F26%20Passed-brightgreen.svg)](tests/)
+[![Tests: 30 Passed](https://img.shields.io/badge/Tests-30%2F30%20Passed-brightgreen.svg)](tests/)
 [![Evaluation: 1.00 F1](https://img.shields.io/badge/Anomaly%20F1-1.00%20(100%25)-success.svg)](evaluation_metrics.json)
 
 An auditable, double-entry-style loyalty ledger and analytics platform built with Python, FastAPI, and SQLAlchemy. The platform provides mathematical balance reconciliation, FIFO point-lot lifecycle tracking, deterministic synthetic dataset generation, independent rule-based anomaly detection with ground-truth isolation, automated validation suites, and an interactive operational web dashboard.
@@ -22,13 +22,14 @@ An auditable, double-entry-style loyalty ledger and analytics platform built wit
 - [Evaluation Methodology](#evaluation-methodology)
 - [Validation Suite (20 Checks)](#validation-suite-20-checks)
 - [Concurrency & Transaction Safety](#concurrency-transaction-safety)
+- [Git LFS Pointer Recovery](#git-lfs-pointer-recovery)
 - [Known Limitations](#known-limitations)
 - [Troubleshooting](#troubleshooting)
 - [Submission and AI Use](#submission-and-ai-use)
 - [Command Line Interface (CLI)](#command-line-interface-cli)
 - [Interactive Operations Dashboard](#interactive-operations-dashboard)
 - [REST API Endpoints](#rest-api-endpoints)
-- [Automated Testing Suite (26 Tests)](#automated-testing-suite-26-tests)
+- [Automated Testing Suite (30 Tests)](#automated-testing-suite-30-tests)
 - [Deliverable Documentation & Exports](#deliverable-documentation-exports)
 - [Project Directory Structure](#project-directory-structure)
 - [License](#license)
@@ -140,7 +141,7 @@ Run the fast unit test suite (< 1 second):
 pytest tests/unit/ -v
 ```
 
-To run the complete 26-test regression and integration suite (~2.5 minutes):
+To run the complete 30-test regression, lifecycle, and concurrency suite (~14 seconds):
 ```bash
 pytest tests/ -v
 ```
@@ -234,7 +235,7 @@ The platform is designed around an append-only, double-entry style financial led
                               │
 ┌─────────────────────────────▼─────────────────────────────┐
 │           Persistence Layer (SQLAlchemy 2.0 ORM)          │
-│   (SQLite WAL + Foreign Keys / PostgreSQL DDL & Seed)     │
+│   (SQLite WAL + Foreign Keys / ANSI SQL Exports)          │
 └─────────────────────────────▲─────────────────────────────┘
                               │
 ┌─────────────────────────────┴─────────────────────────────┐
@@ -245,7 +246,7 @@ The platform is designed around an append-only, double-entry style financial led
 
 ### 1. Data Flow
 1. **Synthetic Data Generation**: The deterministic generator (`seed=20261022`) creates entities in topological order: Tiers/Rules $\to$ Customers/Accounts $\to$ Orders/Order Lines $\to$ Accrual Transactions/Lots $\to$ Redemptions $\to$ Returns/Reversals $\to$ Expiry Batches.
-2. **Persistence**: Ingested via SQLAlchemy 2.0 into SQLite (with `PRAGMA foreign_keys=ON;` and WAL mode) for local execution, or PostgreSQL 16 schema via DDL.
+2. **Persistence**: Ingested via SQLAlchemy 2.0 into SQLite (with `PRAGMA foreign_keys=ON;` and WAL mode) as the sole runtime, with portable ANSI SQL export scripts for reference.
 3. **Domain Services**: Manage operational events (accruing points, allocating lots, reversing returns, expiring lots, promoting tiers).
 4. **Validation Engine**: Executes 20 distinct data integrity checks across balances, arithmetic, foreign keys, and idempotency.
 5. **Independent Anomaly Detection**: Anomaly detector scans raw operational tables without ground truth access; evaluator compares findings against isolated ground truth.
@@ -463,14 +464,26 @@ The concurrency model was validated under specific measured workloads:
 
 ---
 
+## Git LFS Pointer Recovery
+
+When cloning repositories that track large export artifacts via Git LFS on machines where `git-lfs` is not installed or smudge filters are disabled, Git leaves small text pointer files in place of large binary objects.
+
+The platform provides built-in, defensive recovery and safety protections:
+1. **Strict Specification Validation**: `is_lfs_pointer(file_path)` in `src/loyalty_ledger/db.py` validates the exact Git LFS pointer specification (size $\le 1024$ bytes, first line `version https://git-lfs.github.com/spec/v1`, a valid 64-hex-digit SHA-256 OID, and a positive numeric size). Arbitrary text files containing the string `"git-lfs"` and malformed pointer variants are strictly preserved and **never deleted**.
+2. **Connection-Time Guard**: Normal database operations evaluate pointer detection lazily during engine `connect` events (`_on_sqlite_connect`), raising an explicit, actionable `RuntimeError` rather than crashing with an obscure SQLite disk I/O error.
+3. **Automated CLI Recovery**: Running `python -m loyalty_ledger.cli generate --scale starter --seed 20261022` automatically removes the unresolved pointer text file and initializes a fresh, valid SQLite database.
+4. **Legitimate Database Preservation**: Real SQLite databases (header `SQLite format 3\x00`) never match pointer criteria and can never be automatically deleted.
+
+---
+
 ## Known Limitations
 
 This section documents verified limitations based on the current implementation:
 
 1. **Local SQLite Execution Verified**: Local execution is verified using SQLite 3 in WAL mode. While suitable for single-node local execution, evaluation, and CI testing, SQLite is a file-based database and not intended for distributed, multi-region web deployments.
-2. **PostgreSQL Integration Status**:
-   - ANSI-compliant DDL ([exports/sql/schema.sql](exports/sql/schema.sql)), SQL seed data ([exports/sql/seed.sql](exports/sql/seed.sql)), and container configuration ([docker-compose.yml](docker-compose.yml)) are provided.
-   - However, **live runtime integration, automated Alembic migrations against PostgreSQL, and multi-client PostgreSQL concurrency benchmarks have not been verified in a live PostgreSQL cluster**.
+2. **SQLite as the Sole Supported Runtime**:
+   - The application is engineered and verified strictly for local SQLite 3 in WAL mode. Docker and PostgreSQL deployment configurations have been removed from this submission to guarantee full local reproducibility without external database daemon dependencies.
+   - ANSI-compliant SQL DDL ([exports/sql/schema.sql](exports/sql/schema.sql)) and SQL seed data ([exports/sql/seed.sql](exports/sql/seed.sql)) are preserved as reference export deliverables.
 3. **Synthetic Dataset Scope**: All customer behaviors, orders, and anomaly scenarios are synthetic, generated deterministically from seed `20261022`. They do not capture real-world traffic variance, organic fraud patterns, network partition latency, or distributed race conditions.
 4. **Authentication & Authorization**: Authentication and role-based access control (RBAC) are **not implemented**. Endpoints do not enforce JWT or OAuth tokens. The web console and API operate with open access in the local environment.
 5. **Unimplemented Production Controls**: The platform does not implement production controls such as automated backup/restore orchestration, secrets management (e.g., HashiCorp Vault), distributed tracing, rate limiting, or TLS termination.
@@ -559,8 +572,8 @@ This section documents verified limitations based on the current implementation:
 ### 3. Transparent Statement of AI Assistance
 This project was developed with the assistance of **Google DeepMind Antigravity (Gemini)** as an agentic AI pair programmer:
 - **AI-Assisted Work**: ORM schema scaffolding from `PRD.md`, initial service-layer boilerplate, synthetic data generator algorithms, validation check scaffolding, and documentation drafting.
-- **Human Review & Modification**: Mathematical proofs of balance reconciliation ($\sum \text{points\_delta} = \text{balance}$), FIFO lot allocation conservation arithmetic, resolution of SQLite locking via `begin_write_transaction` and WAL pragmas, strict separation of ground truth from anomaly detection, and verification of all 26 automated tests.
-- **Independent Testing**: All 26 automated tests, 20 validation checks, two-run reproducibility verifications, and concurrency benchmarks were independently executed and verified.
+- **Human Review & Modification**: Mathematical proofs of balance reconciliation ($\sum \text{points\_delta} = \text{balance}$), FIFO lot allocation conservation arithmetic, resolution of SQLite locking via `begin_write_transaction` and WAL pragmas, strict separation of ground truth from anomaly detection, and verification of all 30 automated tests.
+- **Independent Testing**: All 30 automated tests, 20 validation checks, two-run reproducibility verifications, and concurrency benchmarks were independently executed and verified.
 
 ### 4. Verification Reports & Audit Deliverables
 - [reports/final_release_verification.md](reports/final_release_verification.md): Comprehensive release verification and acceptance audit report.
@@ -649,15 +662,15 @@ The API is fully documented via OpenAPI at `/docs`. Primary endpoints include:
 
 ---
 
-## Automated Testing Suite (26 Tests)
+## Automated Testing Suite (30 Tests)
 
-The platform includes an automated regression and lifecycle test suite executed via `pytest`:
+The platform includes an automated regression, lifecycle, and concurrency test suite executed via `pytest`:
 
 ```bash
 pytest tests/ -v
 ```
 
-**Results: 26 passed in ~165s (100% pass rate)**:
+**Results: 30 passed in ~14s (100% pass rate)**:
 - **Unit Tests (`tests/unit/`)**:
   - `test_accrual_floor_rounding`: Verifies floor division and exclusion of non-merchandise fees.
   - `test_tier_threshold_boundaries`: Boundary tests for Bronze, Silver, and Gold qualifications.
@@ -668,6 +681,7 @@ pytest tests/ -v
   - `test_api_endpoints.py`: End-to-end API coverage for health, dashboard, customers, orders, validation runs, anomaly evaluation, reports, tiers, and rules.
   - `test_concurrency_locking.py`: 25 simultaneous concurrent read requests across 5 endpoints without database locks; mixed concurrent read/write workloads proving double-spending prevention under SQLite WAL mode.
   - `test_ledger_and_services.py`: Accrual idempotency, insufficient points rejection, expiry batch idempotency, excluded category filtering, full/partial returns with reversal references, competing redemptions against the same account, concurrent redemption & expiry lot safety.
+  - `test_lfs_recovery.py`: Git LFS pointer recovery verification: positive detection of genuine LFS pointers, rejection on ordinary database access, safe recovery via CLI generate, preservation of small arbitrary text files containing `"git-lfs"`, rejection and preservation of malformed pointer variants, and SQLite database safety.
 - **Reproducibility Tests (`tests/reproducibility/`)**:
   - `test_fixed_seed_reproducibility`: Two-run generation comparison verifying identical row counts and canonical checksums.
 - **Anomaly Tests (`tests/anomalies/`)**:
@@ -687,6 +701,7 @@ pytest tests/ -v
   - [docs/api.md](docs/api.md): REST API specification and request/response models.
   - [docs/AI_DISCLOSURE.md](docs/AI_DISCLOSURE.md): Formal AI tool usage and assistance disclosure statement.
   - [docs/PROMPT_HISTORY.md](docs/PROMPT_HISTORY.md): Chronological engineering prompt history.
+  - [docs/FINAL_PRE_SUBMISSION_AUDIT.md](docs/FINAL_PRE_SUBMISSION_AUDIT.md): Comprehensive pre-submission hardening audit report with 9-item checklist.
 - **Evaluation & Manifests**:
   - [ground_truth.csv](ground_truth.csv) & [ground_truth.json](ground_truth.json): Isolated evaluation ground truth (16 records).
   - [evaluation_metrics.json](evaluation_metrics.json): Anomaly detection precision, recall, and F1 scores.
@@ -698,7 +713,7 @@ pytest tests/ -v
 - **Exports**:
   - `exports/csv/`: 15 tables in CSV format.
   - `exports/json/`: 15 tables in JSON format.
-  - `exports/sql/`: Full PostgreSQL DDL (`schema.sql`) and insert seeds (`seed.sql`).
+  - `exports/sql/`: Portable ANSI SQL DDL (`schema.sql`) and insert seeds (`seed.sql`).
 
 ---
 
@@ -707,7 +722,7 @@ pytest tests/ -v
 ```
 Loyalty Ledger Intelligence Platform/
 ├── data/
-│   └── loyalty_ledger.db       # SQLite WAL database (Full 20k/100k/300k dataset)
+│   └── .gitkeep                # SQLite WAL database generated on demand
 ├── docs/
 │   ├── PRD.md                  # Authoritative Product Requirements
 │   ├── architecture.md         # System architecture & layers
@@ -716,11 +731,12 @@ Loyalty Ledger Intelligence Platform/
 │   ├── entity_relationships.md # ER diagrams & constraints
 │   ├── api.md                  # API documentation
 │   ├── AI_DISCLOSURE.md        # Formal AI tool usage declaration
-│   └── PROMPT_HISTORY.md       # Chronological development prompt history
+│   ├── PROMPT_HISTORY.md       # Chronological development prompt history
+│   └── FINAL_PRE_SUBMISSION_AUDIT.md # Pre-submission hardening audit checklist
 ├── exports/
 │   ├── csv/                    # CSV exports for all 15 business tables
 │   ├── json/                   # JSON exports for all 15 business tables
-│   └── sql/                    # PostgreSQL schema DDL & seed scripts
+│   └── sql/                    # ANSI SQL schema DDL & seed scripts (portable exports)
 ├── frontend/
 │   └── public/
 │       └── index.html          # Single-page operations console
@@ -750,15 +766,16 @@ Loyalty Ledger Intelligence Platform/
 │   ├── config.py               # Paths, ports & seed defaults
 │   └── db.py                   # Engine, session factory & pragmas
 ├── tests/
+│   ├── conftest.py             # Pytest test-database isolation fixture
 │   ├── anomalies/              # Anomaly detection & evaluation tests
-│   ├── integration/            # API & service integration tests
+│   ├── integration/            # API, concurrency & LFS recovery tests
 │   ├── reproducibility/        # Two-run determinism tests
 │   └── unit/                   # Rule calculations & boundary tests
 ├── dataset_manifest.json       # Dataset metadata & SHA-256 hashes
-├── docker-compose.yml          # Containerized deployment config
 ├── evaluation_metrics.json     # Anomaly evaluation metrics
 ├── ground_truth.csv            # Anomaly ground truth (CSV)
 ├── ground_truth.json           # Anomaly ground truth (JSON)
+├── LICENSE                     # MIT License
 ├── pyproject.toml              # Build & dependency configuration
 ├── README.md                   # Project documentation
 ├── reproducibility_report.json # Reproducibility report
@@ -771,4 +788,4 @@ Loyalty Ledger Intelligence Platform/
 
 ## License
 
-This project is licensed under the MIT License.\n
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

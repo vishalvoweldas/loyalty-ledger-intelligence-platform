@@ -1,4 +1,4 @@
--- Loyalty Ledger Intelligence Platform Schema (PostgreSQL / SQLite Compatible)
+-- Loyalty Ledger Intelligence Platform Schema (ANSI SQL Reference Export)
 CREATE TABLE IF NOT EXISTS customers (
     customer_id VARCHAR(32) PRIMARY KEY,
     name VARCHAR(128) NOT NULL,

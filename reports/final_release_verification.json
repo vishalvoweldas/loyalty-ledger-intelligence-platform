@@ -9,8 +9,7 @@
       "runtime_engine": "SQLite 3 (WAL mode, foreign_keys=ON, BEGIN IMMEDIATE isolation)",
       "file_path": "data/loyalty_ledger.db",
       "supported_deployment_targets": [
-        "SQLite (Local/Edge runtime)",
-        "PostgreSQL 15+ (Production containerized runtime via docker-compose)"
+        "SQLite 3 WAL mode (Sole verified local runtime)"
       ]
     }
   },
@@ -247,9 +246,9 @@
     },
     {
       "criterion_id": "AC-14",
-      "description": "Packaging, environment configuration, containerization, and clean startup instructions",
+      "description": "Packaging, environment configuration, and clean startup instructions (SQLite-first)",
       "status": "PASS",
-      "evidence": "pyproject.toml, Dockerfile, docker-compose.yml, .env.example, README.md verified and tested."
+      "evidence": "pyproject.toml, .env.example, README.md verified and tested for SQLite 3 WAL runtime."
     }
   ],
   "concurrency_verification": {

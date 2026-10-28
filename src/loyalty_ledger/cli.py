@@ -14,8 +14,16 @@ from loyalty_ledger.config import REPORTS_DIR, BASE_DIR
 
 def run_generate(args):
     import os
+    from pathlib import Path
     print(f"=== Generating Dataset (scale={args.scale}, seed={args.seed}) ===")
     os.environ["LOYALTY_DISABLE_FK"] = "1"
+
+    # Clean up unresolved Git LFS pointer file if present before initializing database
+    from loyalty_ledger.config import DATABASE_URL
+    from loyalty_ledger.db import remove_lfs_pointer_if_present
+    if remove_lfs_pointer_if_present(DATABASE_URL):
+        print(f"Detected Git LFS pointer text file at {DATABASE_URL}; removed pointer to initialize a fresh SQLite database.")
+
     init_db()
     session = SessionFactory()
     try:
@@ -52,11 +60,12 @@ def run_generate(args):
         session.close()
 
 def run_validate(args):
-    print(f"=== Running Validation Suite (mode={args.mode}) ===")
+    scale_arg = getattr(args, "scale", "auto")
+    print(f"=== Running Validation Suite (mode={args.mode}, scale={scale_arg}) ===")
     session = SessionFactory()
     try:
         engine = ValidationEngine(session=session)
-        summary = engine.validate_all(mode=args.mode)
+        summary = engine.validate_all(mode=args.mode, scale=scale_arg if scale_arg != "auto" else None)
 
         # Save machine-readable validation_summary.json
         summary_path = REPORTS_DIR / "validation_summary.json"
@@ -153,6 +162,7 @@ def main():
     # validate
     val_p = subparsers.add_parser("validate", help="Run 20-check validation suite")
     val_p.add_argument("--mode", choices=["baseline", "evaluation"], default="baseline", help="Validation mode")
+    val_p.add_argument("--scale", choices=["starter", "full", "auto"], default="auto", help="Profile scale to validate against (default: auto)")
     val_p.set_defaults(func=run_validate)
 
     # reproduce

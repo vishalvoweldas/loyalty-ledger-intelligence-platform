@@ -126,7 +126,7 @@ class DataExporter:
         sql_seed_path = sql_dir / "seed.sql"
 
         with open(sql_schema_path, "w", encoding="utf-8") as f:
-            f.write("-- Loyalty Ledger Intelligence Platform Schema (PostgreSQL / SQLite Compatible)\n")
+            f.write("-- Loyalty Ledger Intelligence Platform Schema (ANSI SQL Reference Export)\n")
             f.write("CREATE TABLE IF NOT EXISTS customers (\n")
             f.write("    customer_id VARCHAR(32) PRIMARY KEY,\n")
             f.write("    name VARCHAR(128) NOT NULL,\n")

@@ -33,7 +33,7 @@ The Loyalty Ledger Intelligence Platform is structured as an enterprise-grade, a
        |                        |
 +-----------------------------------------------------------------------------------+
 |                        Relational Persistence Layer                               |
-|              SQLite (WAL Mode, Strict FKs) / PostgreSQL Schema                    |
+|              SQLite (WAL Mode, Strict FKs) + ANSI SQL Exports                     |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -83,5 +83,5 @@ The Loyalty Ledger Intelligence Platform is structured as an enterprise-grade, a
 - **Selective Immediate Writes:** Balance-changing mutations (redemptions, lot allocations, order return reversals, and expiry batches) invoke `begin_write_transaction(session)`. This sets connection execution options `sqlite_immediate: True`, instructing SQLAlchemy to emit `BEGIN IMMEDIATE` strictly for write workflows, avoiding write-lock upgrade failures.
 - **Connection & Busy Timeout:** `PRAGMA busy_timeout = 30000;` and DBAPI connection timeout (`timeout=30.0`) are configured on every SQLite connection, allowing competing writers to serialize smoothly without raising transient lock exceptions.
 
-### PostgreSQL Compatibility
-- On PostgreSQL deployments, `bind.dialect.name == "sqlite"` evaluates to `False`, rendering SQLite-specific PRAGMAs and immediate begin statements safe no-ops. PostgreSQL enforces row-level locking natively via `SELECT ... FOR UPDATE` (used in `RedemptionService` and lot allocation queries) within standard MVCC transactions.
+### Reference SQL Export Compatibility
+- For enterprise portability and data archiving, the platform exports ANSI-compliant DDL (`exports/sql/schema.sql`) and SQL seed scripts (`exports/sql/seed.sql`). In PostgreSQL or other relational database dialects, the schema maps to standard MVCC tables without SQLite-specific PRAGMAs. The verified runtime for this submission is local SQLite 3 in WAL mode.

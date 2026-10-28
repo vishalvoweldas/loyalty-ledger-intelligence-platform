@@ -9,6 +9,7 @@ description = "Loyalty Ledger Intelligence Platform - Synthetic data factory, au
 authors = [{ name = "Vishal Voweldas", email = "vishalvoweldas67@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 
 dependencies = [
     "fastapi>=0.110.0",

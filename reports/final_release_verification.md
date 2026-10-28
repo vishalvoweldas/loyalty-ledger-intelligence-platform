@@ -7,7 +7,7 @@
 **Audit Designation:** Independent Senior Systems Auditor & Release Verification Engineer  
 **Execution Timestamp:** 2026-10-27T17:45:00+05:30  
 **Primary Database Runtime:** SQLite 3 WAL Mode (`data/loyalty_ledger.db`) with `PRAGMA foreign_keys = ON` and `BEGIN IMMEDIATE` write lock serialization  
-**Alternative Supported Deployment:** PostgreSQL 15+ via Docker Compose (`docker-compose.yml`)  
+**Supported Runtime Architecture:** Local SQLite 3 WAL Mode (Docker/PostgreSQL deployment configs removed for SQLite-first submission)<br/>
 **Simulation Seed:** `20261022`  
 **Dataset Scale:** `full` (100,000 orders scale)  
 
@@ -104,11 +104,16 @@ All anomaly scenarios have been reconciled to strictly match the authoritative P
 
 ---
 
-### 1.4 Database Runtime & Deployment Architecture Distinction
-- **Local / CI Execution Runtime:** SQLite 3 WAL Mode (`data/loyalty_ledger.db`).  
+### 1.4 Database Runtime & Architecture
+- **Verified Local Runtime:** SQLite 3 WAL Mode (`data/loyalty_ledger.db`).<br/>
   - Because SQLite does not support row-level locks (`SELECT ... FOR UPDATE`), transaction serialization for balance-changing mutations is enforced via selective `BEGIN IMMEDIATE` write transactions with `PRAGMA busy_timeout = 30000;`. Ordinary read operations execute in non-blocking deferred transactions under WAL mode (`PRAGMA journal_mode = WAL;`), guaranteeing concurrent read scalability alongside strict write serialization and double-spend prevention.
-- **Containerized / Enterprise Production Runtime:** PostgreSQL 15+.  
-  - Configured in [`docker-compose.yml`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/docker-compose.yml) and documented in [`docs/architecture.md`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/docs/architecture.md). Uses standard MVCC with row-level locks. Schema DDL is ANSI SQL compliant ([`exports/sql/schema.sql`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/exports/sql/schema.sql)).
+- **Portability Reference Deliverables:** ANSI-compliant SQL DDL (`exports/sql/schema.sql`) and SQL seed scripts (`exports/sql/seed.sql`) are provided as portable reference export artifacts. Docker and PostgreSQL deployment dependencies have been removed to guarantee immediate, dependency-free local evaluation on any standard Python environment.
+
+---
+
+### 1.5 Resolution of `expiry_batches` Count Discrepancy
+- **Root Cause Analysis:** Investigation revealed that the standard deterministic generator executes exactly 1 batch of expirations during the simulation window (`EXP-2026-000001`). In a previous working database, an ephemeral manual test batch `EXP-2026-MANUAL` (lots_scanned: 0, points_expired: 0) had been created by an operator during interactive endpoint testing, causing the old database to report 2 batches while fresh generations reported 1 batch.
+- **Resolution:** The ad-hoc test batch was eliminated. All canonical manifests (`dataset_manifest.json`, `reports/dataset_manifest.json`, `reports/reproducibility_report.json`), CSV exports (`exports/csv/expiry_batches.csv`), and JSON exports (`exports/json/expiry_batches.json`) have been reconciled to the authoritative count of exactly **1** batch (`EXP-2026-000001`).
 
 ---
 
@@ -134,6 +139,7 @@ Points Transactions:                  300,000 (Target: 300,000)
 Rewards:                                    4 (Vouchers ₹100, ₹250, ₹500, ₹1000)
 Redemptions:                           98,996 (98,994 baseline + 2 AN-002)
 Order Returns:                         20,002 (20,000 baseline + 2 AN-003)
+Expiry Batches:                             1 (EXP-2026-000001)
 Point Lots:                           100,000 (Target: 100,000)
 Transaction Lot Allocations:          201,086
 Account Tier History:                  20,000
@@ -340,7 +346,7 @@ All required files are verified present on disk with non-zero size:
 | **AC-11** | Canonical exports (CSV, JSON, SQL seed, manifests, dictionary) | **PASS** | 15 CSV, 15 JSON, 2 SQL files, [`data_dictionary.md`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/data_dictionary.md) |
 | **AC-12** | Interactive Web Operations Console and OpenAPI REST API | **PASS** | FastAPI server serves HTML dashboard at `/` and OpenAPI at `/docs`; 100% concurrent read success |
 | **AC-13** | Automated test suite (unit, integration, lifecycle, anomaly, concurrency) | **PASS** | 26 / 26 automated tests passed in `pytest` |
-| **AC-14** | Packaging, environment config, containerization, startup commands | **PASS** | [`pyproject.toml`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/pyproject.toml), [`Dockerfile`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/Dockerfile), [`docker-compose.yml`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/docker-compose.yml) |
+| **AC-14** | Packaging, environment config, startup commands, SQLite-only | **PASS** | [`pyproject.toml`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/pyproject.toml), [`.env.example`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/.env.example), [`README.md`](file:///c:/Loyalty%20Ledger%20Intelligence%20Platform/README.md) verified and tested |
 
 ---
 

@@ -37,7 +37,8 @@ htmlcov/
 .env
 *.local
 
-# SQLite temporary companion files
+# SQLite database and temporary companion files
+*.db
 *.db-wal
 *.db-shm
 *.db.backup

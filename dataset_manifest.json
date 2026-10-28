@@ -5,7 +5,7 @@
   "scale": "full",
   "simulated_start": "2026-01-01T00:00:00Z",
   "simulated_end": "2026-10-22T23:59:59Z",
-  "created_at": "2026-10-27T16:09:13.705520+00:00",
+  "created_at": "2026-10-28T13:46:49.552987+00:00",
   "row_counts": {
     "customers": 20000,
     "loyalty_accounts": 20000,
@@ -16,7 +16,7 @@
     "points_transactions": 300000,
     "rewards": 4,
     "redemptions": 98996,
-    "expiry_batches": 2,
+    "expiry_batches": 1,
     "point_lots": 100000,
     "transaction_lot_allocations": 201086,
     "account_tier_history": 20000,
@@ -42,8 +42,8 @@
     "json/rewards.json": "690f9fd8146bef2162d14a1fda8b22aa132443cc7879e9910b77fd1a85665988",
     "csv/redemptions.csv": "a92daa27f9f216937449e1554b6812260f2b1f573d6f9f9d7572dbe457bbd316",
     "json/redemptions.json": "dc835ead2fc6b22271a395c6200237c4af0728d35e5883ee3fd9d9827d36b77e",
-    "csv/expiry_batches.csv": "6eb35b160443be3e6bad9789f2f9a4dad401cdbe935841fed38f48c12d2d7c89",
-    "json/expiry_batches.json": "6bd4680227ac83589456239a7eab60c57585f589e97d73c67cc5b99870956065",
+    "csv/expiry_batches.csv": "118420e93961aec9e8bae3400fcfdea2ac6f3f2cd44efb0c89fe37a261dfca8a",
+    "json/expiry_batches.json": "f793658c8eacdf8482a837c0a0f19cd57dd7f7dabc88299525635df09d68cd22",
     "csv/point_lots.csv": "9aac88e47f7aceb4fdb47ffdcc9b78b90f745fd3b0d305cd479bbfbb66f9f80b",
     "json/point_lots.json": "e9b0e1f4e20a0f11606b2febc710b99be6de264fd6e24ac918703e57cc4456ee",
     "csv/transaction_lot_allocations.csv": "de6dd37eae23c41ec3ec08288957af9dd09df9d798c352bcc7b4116948ca4fc6",
@@ -56,7 +56,7 @@
     "json/audit_events.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "ground_truth.csv": "e8fa3edd06d503cd9135d5083ff983f0ac258e1a16743a4f6c85e0ff157da7f8",
     "ground_truth.json": "97b1106e1c96bf2357e9dc45c6a91f8d0e19506ad9d904578585cd954b76a6b7",
-    "sql/schema.sql": "6d3e0bbd0d9a1207d7e0d5ba5107045db2ed00424ccac855f703c6dbb5733597",
+    "sql/schema.sql": "55411ac701b1ec0f8a82425f438dc197f7b78dec2f81fb3d7eb464adf5c37e15",
     "sql/seed.sql": "3c704f2fb40650e9309d0d70ebbc12b5840f1c74f571234d9c0d3c9c4e63da06"
   }
 }

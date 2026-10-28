@@ -69,5 +69,5 @@ This document records the prompt progression and engineering phases undertaken d
 - **Key Actions**:
   - Reconciled all 201,086 lot allocation rows: 100,082 redemption allocations (including 2 unbacked AN-002 anomalies) + 81,004 expiry allocations + 20,000 reversal allocations.
   - Verified two-run reproducibility with seed `20261022` producing identical SHA-256 hashes across all 14 domain entities.
-  - Generated full CSV, JSON, and PostgreSQL SQL exports with SHA-256 manifests.
+  - Generated full CSV, JSON, and ANSI SQL exports with SHA-256 manifests.
   - Documented complete release audit in `reports/final_release_verification.md`.

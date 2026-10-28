@@ -1,6 +1,6 @@
 {
-  "validation_timestamp": "2026-10-28T11:41:10.140586+00:00",
-  "mode": "baseline",
+  "validation_timestamp": "2026-10-28T16:18:43.645255+00:00",
+  "mode": "evaluation",
   "total_checks": 20,
   "passed_checks": 20,
   "failed_checks": 0,
@@ -67,7 +67,7 @@
       "status": "PASS",
       "passed": true,
       "severity": "NONE",
-      "explanation": "Orders with mismatched arithmetic: 0 (all 100,000 verified)"
+      "explanation": "Orders with mismatched arithmetic: 0 (all 2,500 verified)"
     },
     {
       "check_number": 8,
@@ -76,7 +76,7 @@
       "status": "PASS",
       "passed": true,
       "severity": "NONE",
-      "explanation": "Lines with returned_quantity > quantity: 0 (all 199,822 verified)"
+      "explanation": "Lines with returned_quantity > quantity: 0 (all 4,941 verified)"
     },
     {
       "check_number": 9,
@@ -93,8 +93,8 @@
       "entity": "OrderReturn",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: 20,000 returns checked, 0 missing reversals. (2 intentional AN-003 returns isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected missing reversals. Exactly 2 intentional AN-003 returns confirmed against ground truth."
     },
     {
       "check_number": 11,
@@ -102,8 +102,8 @@
       "entity": "LoyaltyAccount",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: 19,998 accounts checked, 0 balance discrepancies. (2 intentional AN-001 anomalies isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected balance discrepancies. Exactly 2 intentional AN-001 accounts confirmed against ground truth."
     },
     {
       "check_number": 12,
@@ -111,8 +111,8 @@
       "entity": "PointLot",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: 99,992 point lots checked, 0 allocation math discrepancies. (8 intentional AN-004 lots isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected allocation discrepancies. Exactly 8 intentional AN-004 lots confirmed against ground truth."
     },
     {
       "check_number": 13,
@@ -120,8 +120,8 @@
       "entity": "Redemption",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: 98,994 redemptions checked, 0 overdrawn attempts. (2 intentional AN-002 redemptions isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected overdrawn redemptions. Exactly 2 intentional AN-002 redemptions confirmed against ground truth."
     },
     {
       "check_number": 14,
@@ -129,8 +129,8 @@
       "entity": "TransactionLotAllocation",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: 99,992 point lots checked, 0 duplicate expiry allocations. (8 intentional AN-004 lots isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected duplicate expiries. Exactly 8 intentional AN-004 lots confirmed against ground truth."
     },
     {
       "check_number": 15,
@@ -138,8 +138,8 @@
       "entity": "LoyaltyAccount",
       "status": "PASS",
       "passed": true,
-      "severity": "NONE",
-      "explanation": "Baseline verified: Tier qualifying spend rules verified across all baseline accounts. (2 intentional AN-005 accounts isolated in ground truth)."
+      "severity": "WARNING",
+      "explanation": "Evaluation verified: 0 unexpected tier mismatches. Exactly 2 intentional AN-005 gross spend tier overrides confirmed against ground truth."
     },
     {
       "check_number": 16,
@@ -148,7 +148,7 @@
       "status": "PASS",
       "passed": true,
       "severity": "NONE",
-      "explanation": "Orders with invalid status: 0 (all 100,000 orders valid)"
+      "explanation": "Orders with invalid status: 0 (all 2,500 orders valid)"
     },
     {
       "check_number": 17,
@@ -157,7 +157,7 @@
       "status": "PASS",
       "passed": true,
       "severity": "NONE",
-      "explanation": "Duplicate idempotency keys: 0 (all 300,000 keys unique)"
+      "explanation": "Duplicate idempotency keys: 0 (all 7,500 keys unique)"
     },
     {
       "check_number": 18,
@@ -175,7 +175,7 @@
       "status": "PASS",
       "passed": true,
       "severity": "INFO",
-      "explanation": "Customers: 20000, Orders: 100000, Transactions: 300000, Lots: 100000, Allocations: 201086"
+      "explanation": "Profile: STARTER (expected: 500 cus, 2,500 ord, 7,500 tx). Actual: 500 Customers, 2,500 Orders, 7,500 Transactions, 2,500 Lots, 5,024 Allocations"
     },
     {
       "check_number": 20,
